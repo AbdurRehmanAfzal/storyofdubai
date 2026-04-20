@@ -200,37 +200,107 @@
   - ✅ All indexes created for query optimization
   - ✅ Soft-delete pattern (is_active) on all tables
 
+### Phase 1 Sprint 1: Pydantic Schemas & API Routes (Prompt 16 Complete)
+
+- [x] Created backend/app/schemas/base.py (37 lines)
+  - APIResponse[T] generic with success/data/meta/error fields
+  - PaginationMeta: total, page, per_page, has_next, has_prev
+  - ErrorDetail: code, message, details dict
+  - Class methods: APIResponse.ok() and APIResponse.fail()
+
+- [x] Created backend/app/schemas/venue.py (90 lines)
+  - AreaBase, AreaCreate, AreaResponse with all fields
+  - CategoryBase, CategoryCreate, CategoryResponse
+  - VenueBase, VenueCreate, VenueResponse (full detail)
+  - VenueListItem (lightweight for list pages with nested area/category)
+
+- [x] Created backend/app/schemas/property.py (65 lines)
+  - DeveloperResponse, PropertyResponse, PropertyListItem
+  - All models with is_active, timestamps, created_at/updated_at
+
+- [x] Created backend/app/schemas/visa.py (55 lines)
+  - NationalityResponse, VisaTypeResponse, VisaNationalityGuideResponse
+  - VisaNationalityGuideCreate for POST operations
+
+- [x] Created backend/app/schemas/company.py (40 lines)
+  - CompanyResponse, CompanyListItem for list operations
+
+- [x] Created backend/app/schemas/page_paths.py (18 lines)
+  - VenueAreaPath, PropertyPath, VisaGuidePath for Next.js getStaticPaths
+
+- [x] Created backend/app/services/cache.py (68 lines)
+  - CacheService singleton with Redis async client
+  - Methods: get(), set(), delete(), invalidate_pattern(), close()
+  - JSON serialization with default=str for custom types
+  - Graceful error handling (returns None/False on failure)
+
+- [x] Implemented backend/app/api/v1/venues.py (195 lines)
+  - GET / with pagination, filters (area, category, min_score, ordering), Redis caching
+  - GET /{slug}/ single venue with 24h cache
+  - GET /area/{area_slug}/category/{category_slug}/ top 20, aggressive 6h cache for pages
+
+- [x] Implemented backend/app/api/v1/areas.py (75 lines)
+  - GET / all areas (cached 24h, rarely changes)
+  - GET /{slug}/ single area
+
+- [x] Implemented backend/app/api/v1/categories.py (75 lines)
+  - GET / all categories (cached 24h)
+  - GET /{slug}/ single category
+
+- [x] Implemented backend/app/api/v1/properties.py (120 lines)
+  - GET / with pagination and filters (area, bedrooms, price_bucket, property_type)
+  - GET /{slug}/ single property with 24h cache
+  - Redis caching on all operations
+
+- [x] Implemented backend/app/api/v1/visa_guides.py (100 lines)
+  - GET / with optional filters (nationality, visa_type), 7-day cache
+  - GET /{nationality_slug}/{visa_type_slug}/ specific guide
+
+- [x] Implemented backend/app/api/v1/page_paths.py (120 lines) — CRITICAL
+  - GET /venue-area/ returns all area×category×slug for venues (getStaticPaths)
+  - GET /properties/ returns all area×bedrooms×price_bucket×slug
+  - GET /visa-guides/ returns all nationality×visa_type pairs with ai_guide
+  - All cached 6 hours for Next.js build performance
+
+- [x] Updated backend/app/main.py
+  - Added cache.close() to lifespan shutdown
+  - Proper Redis cleanup on app termination
+
+- [x] Updated backend/app/api/v1/__init__.py
+  - Removed duplicate prefixes (routers define their own)
+  - All 6 sub-routers properly aggregated
+
+- [x] **VERIFIED: All routes load successfully**
+  - ✅ 19 total endpoints (6 routers + 3 documentation + health)
+  - ✅ All syntax valid, Python compiles without errors
+  - ✅ FastAPI app starts and routes are registered
+  - ✅ Redis caching service integrated
+
 ## IN PROGRESS
-✓ Prompt 15 Complete: SQLAlchemy Models + Alembic Migration Generated
+✓ Prompt 16 Complete: Pydantic Schemas + All API Routes + Redis Caching
 
 ---
 
 ## NEXT TASK
 
-→ **Prompt 16 (Phase 1 Sprint 1 Continued)**: Pydantic Schemas & API Response Envelope
+→ **Prompt 17 (Phase 1 Sprint 1 Continued)**: Integration Tests & Admin Routes
 
-Priority order:
-1. **Create Pydantic schemas** (Prompt 16)
-   - Request/response models for each entity (base, create, update, response)
-   - Standard response envelope (success, data, meta, error)
-   - Pagination meta structure
+Priority:
+1. **Integration tests** (Prompt 17)
+   - Test all GET endpoints return correct response envelope
+   - Test pagination (has_next, has_prev)
+   - Test 404 errors for non-existent resources
+   - Test Redis caching (verify cache hit after first request)
 
-2. **Scaffold FastAPI routes** (Prompt 17)
-   - Venue routes: GET /venues/, GET /venues/{slug}/
-   - Property routes: GET /properties/, GET /properties/{slug}/
-   - Visa routes: GET /visa-guides/, GET /visa-guides/{slug}/
-   - Company routes: GET /companies/, GET /companies/{slug}/
-   - All routes return standard envelope + pagination
+2. **Admin routes** (Prompt 18)
+   - POST /scraper/run/ (trigger data collection) - Bearer token required
+   - POST /scoring/recalculate/ (recompute composite scores) - Bearer token required
+   - GET /admin/scrape-jobs/ list recent scrape jobs
+   - Protected by JWT authentication
 
-3. **Integration tests** (Prompt 18)
-   - Test database connection
-   - Test endpoint response format
-   - Test pagination with filters
-
-4. **Admin routes** (Prompt 19)
-   - POST /scraper/run/ (trigger data collection)
-   - POST /scoring/recalculate/ (recompute composite scores)
-   - Protected by Bearer token auth
+3. **Authentication** (Prompt 19)
+   - JWT token generation and validation
+   - Dependency for admin route protection
 
 ---
 

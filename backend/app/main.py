@@ -10,6 +10,7 @@ import time
 
 from app.config import settings
 from app.api.v1 import router as api_v1_router
+from app.services.cache import cache
 
 logger = structlog.get_logger()
 
@@ -27,6 +28,7 @@ async def lifespan(app: FastAPI):
     )
     yield
     logger.info("Shutting down Story of Dubai API")
+    await cache.close()
 
 
 app = FastAPI(
