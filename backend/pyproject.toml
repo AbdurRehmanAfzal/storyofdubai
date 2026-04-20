@@ -10,8 +10,11 @@ authors = [{name = "Abdur Rehman Afzal", email = "abdurrehmanafzal786@gmail.com"
 requires-python = ">=3.12"
 dependencies = []
 
+# ═══════════════════════════════════════════════════════════════════════════
+# BLACK — Code Formatter
+# ═══════════════════════════════════════════════════════════════════════════
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py312']
 include = '\.pyi?$'
 extend-exclude = '''
@@ -25,23 +28,126 @@ extend-exclude = '''
   | \.venv
   | build
   | dist
+  | alembic
 )/
 '''
 
-[tool.ruff]
-line-length = 100
-target-version = "py312"
-select = ["E", "F", "W", "I"]
-ignore = ["E501"]  # Line too long (handled by black)
+# ═══════════════════════════════════════════════════════════════════════════
+# ISORT — Import Sorting
+# ═══════════════════════════════════════════════════════════════════════════
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_mode = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_glob = ["*/migrations/*", "*/alembic/*"]
 
+# ═══════════════════════════════════════════════════════════════════════════
+# RUFF — Fast Python Linter
+# ═══════════════════════════════════════════════════════════════════════════
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "D",    # pydocstyle
+    "UP",   # pyupgrade
+    "ANN",  # flake8-annotations
+]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "D100",  # Missing module docstring
+    "D104",  # Missing package docstring
+    "ANN101", # Missing type annotation for self
+    "ANN102", # Missing type annotation for cls
+]
+exclude = [
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "alembic",
+    "__pycache__",
+]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PYTEST — Testing Framework
+# ═══════════════════════════════════════════════════════════════════════════
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = """
+  --strict-markers
+  --tb=short
+  --disable-warnings
+  -v
+  --cov=app
+  --cov-report=term-missing:skip-covered
+  --cov-report=html
+  --cov-report=xml
+"""
 asyncio_mode = "auto"
-python_files = ["test_*.py"]
-addopts = "--strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "scraper: Scraper tests",
+    "slow: Slow tests",
+]
 
+# ═══════════════════════════════════════════════════════════════════════════
+# COVERAGE — Code Coverage
+# ═══════════════════════════════════════════════════════════════════════════
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MYPY — Static Type Checking
+# ═══════════════════════════════════════════════════════════════════════════
 [tool.mypy]
 python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "sqlalchemy.*",
+    "alembic.*",
+]
+ignore_missing_imports = true
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PYLINT — Additional Linting
+# ═══════════════════════════════════════════════════════════════════════════
+[tool.pylint.messages_control]
+disable = [
+    "C0111",  # missing-docstring
+    "C0103",  # invalid-name
+    "R0903",  # too-few-public-methods
+]

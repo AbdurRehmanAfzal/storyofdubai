@@ -18,7 +18,7 @@
 
 ## IN PROGRESS
 ✓ Prompt 2 Complete: Local Config & Environment Setup
-✓ Prompt 3 (Partial): Claude Code Settings & Permissions
+✓ Prompt 3 (Partial): Code Style & Architecture Rules Documented
 
 ## NEXT TASK
 → **Prompt 3 (Continued)**: Database Schema & API Scaffolding
@@ -49,12 +49,14 @@ None
 | 2026-04-20 | Hostinger VPS | $5/mo cost, sufficient for 100k+ pages + traffic |
 
 ## Session Notes
-- Prompt 1: Created complete project structure, CLAUDE.md brain, all documentation
-- Prompt 2: Set up SSH (GitHub configured), pushed code to repository
-- Added comprehensive CLAUDE.local.md for local development (NOT committed)
-- Updated .env.example with detailed environment variables and comments
-- Created reusable SSH setup folder (~/.claude/ssh-setup/) for future projects
-- Prompt 3 (Partial): Created .claude/settings.json (permissions for Claude Code)
-  - Allow: git, python, pip, npm, pytest, alembic, celery, uvicorn, read/write
-  - Deny: destructive commands (rm -rf, DROP TABLE, SSH from repo)
-  - settings.local.json: SSH allowed only on local machine for VPS deployment
+- **Prompt 1**: Created complete project structure, CLAUDE.md brain, all documentation
+- **Prompt 2**: Set up SSH (GitHub configured), pushed code to repository
+  - Created comprehensive CLAUDE.local.md for local development
+  - Updated .env.example with detailed environment variables
+  - Created reusable SSH setup folder (~/.claude/ssh-setup/)
+- **Prompt 3 (Partial)**:
+  - Created .claude/rules/codestyle.md (Python + TypeScript rules, git conventions)
+  - Created .claude/rules/architecture.md (Backend/Frontend structure, patterns)
+  - Updated backend/pyproject.toml (Black, isort, pytest, coverage, mypy config)
+  - Created .claude/settings.json (permissions: allow git/python/npm, deny rm -rf/DROP)
+  - Created .claude/settings.local.json (local SSH permissions)
