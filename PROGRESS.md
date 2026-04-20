@@ -60,3 +60,5 @@ None
   - Updated backend/pyproject.toml (Black, isort, pytest, coverage, mypy config)
   - Created .claude/settings.json (permissions: allow git/python/npm, deny rm -rf/DROP)
   - Created .claude/settings.local.json (local SSH permissions)
+  - Created .claude/rules/api-conventions.md (REST endpoints, response format, caching)
+  - Updated .claude/rules/database.md (migrations, indexes, retention, naming)
