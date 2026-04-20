@@ -24,8 +24,11 @@
 ## COMPLETED (Prompt 4)
 - [x] Created .claude/commands/review.md (code review automation)
 - [x] Created .claude/commands/fix-issue.md (issue fix workflow)
-- [x] Created .claude/commands/deploy.md (VPS deployment procedure)
+- [x] Created .claude/commands/deploy.md (VPS deployment procedure with Vercel auto-deploy)
 - [x] Created .claude/commands/INDEX.md (command reference)
+- [x] Updated deploy.md with Vercel auto-deploy procedure
+- [x] Updated deploy.md with correct post-deploy verification (curl health endpoint)
+- [x] Updated deploy.md with correct rollback procedure for frontend
 
 ## NEXT TASK
 → **Phase 1 Sprint 1**: Database Schema & API Scaffolding

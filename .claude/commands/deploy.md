@@ -93,9 +93,8 @@ curl https://api.storyofdubai.com/api/v1/health/
 ## Deploy Frontend to Vercel
 
 ### Prerequisites
-- Vercel CLI installed: `npm install -g vercel`
-- Vercel project linked: `.vercel/project.json` exists
 - Frontend builds locally: `npm run build`
+- Vercel auto-deploys on push to main
 
 ### Deployment Steps
 
@@ -106,27 +105,43 @@ npm run build
 npm run start  # Test production build
 ```
 
-**2. Push to main branch (auto-deploys if configured)**
+**2. Auto-deploy via git push**
 ```bash
 git push origin main
 ```
+Vercel automatically deploys on push to main.
 
 **3. Or manually deploy**
 ```bash
 cd frontend
-vercel --prod
+npx vercel --prod
 ```
 
-**4. Check deployment**
-- Visit: https://storyofdubai.vercel.app (or production domain)
-- Check Vercel dashboard for build logs
-- Verify page loads and API calls work
+### Post-Deploy Verification
+
+**1. Check API health endpoint**
+```bash
+curl https://storyofdubai.com/api/v1/health
+```
+Should return: `{"status": "healthy", "database": "connected", ...}`
+
+**2. Check Vercel deployment status**
+- Visit Vercel dashboard: https://vercel.com/dashboard
+- Check latest deployment for any build errors
+- Verify all environment variables are set
+
+**3. Check VPS service status**
+```bash
+ssh deploy@[VPS_IP] "systemctl status storyofdubai-api"
+```
+Should show: `active (running)`
 
 ### Post-Deploy (Vercel)
 - [ ] Homepage loads: https://storyofdubai.com
 - [ ] Sample page loads: /restaurants/dubai-marina/nobu
 - [ ] API calls working: check browser DevTools Network tab
 - [ ] No build errors in Vercel dashboard
+- [ ] Health endpoint responds: curl https://storyofdubai.com/api/v1/health
 
 ---
 
@@ -159,6 +174,7 @@ cd /app/storyofdubai
 git revert HEAD  # Reverts last commit
 alembic downgrade -1  # Rollback last migration (if DB changed)
 git push origin main
+# Wait for CI/CD to complete
 ssh deploy@[VPS_IP]
 cd /app/storyofdubai && git pull origin main
 alembic upgrade head
@@ -167,11 +183,13 @@ sudo systemctl restart storyofdubai-api
 
 ### Rollback Frontend
 ```bash
-cd frontend
+cd /var/www/storyofdubai && git revert HEAD && systemctl restart storyofdubai-api
+```
+Or revert locally and push:
+```bash
 git revert HEAD
 git push origin main
 # Vercel auto-redeploys
-# Or manually: vercel --prod --confirm
 ```
 
 ---
