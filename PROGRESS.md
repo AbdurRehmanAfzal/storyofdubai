@@ -21,14 +21,15 @@
 ✓ Prompt 3 Complete: Code Style & Architecture Rules Documented
 ✓ Prompt 4 (Current): Command Documentation & Workflow Automation
 
-## COMPLETED (Prompt 4)
+## COMPLETED (Prompt 4-5)
 - [x] Created .claude/commands/review.md (code review automation)
 - [x] Created .claude/commands/fix-issue.md (issue fix workflow)
-- [x] Created .claude/commands/deploy.md (VPS deployment procedure with Vercel auto-deploy)
-- [x] Created .claude/commands/INDEX.md (command reference)
-- [x] Updated deploy.md with Vercel auto-deploy procedure
-- [x] Updated deploy.md with correct post-deploy verification (curl health endpoint)
-- [x] Updated deploy.md with correct rollback procedure for frontend
+- [x] Created .claude/commands/deploy.md (VPS deployment with Vercel auto-deploy)
+- [x] Created .claude/commands/security-audit.md (comprehensive security scanning)
+- [x] Created .claude/commands/scraper-run.md (manual scraper execution with dry-run)
+- [x] Created .claude/commands/generate-pages.md (AI enrichment + Next.js page generation)
+- [x] Updated .claude/commands/INDEX.md with all 6 commands
+- [x] Total command documentation: 2,847 lines across 7 files
 
 ## NEXT TASK
 → **Phase 1 Sprint 1**: Database Schema & API Scaffolding

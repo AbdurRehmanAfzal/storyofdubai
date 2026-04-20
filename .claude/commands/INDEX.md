@@ -64,13 +64,71 @@ See: [deploy.md](deploy.md)
 
 ---
 
+### `/security-audit`
+**Purpose**: Comprehensive security scan of entire codebase  
+**When to use**: Before deployments, after adding scrapers/endpoints, periodically (monthly)  
+**Checks**: Hardcoded secrets, SQL injection, rate limiting, API auth, environment variables, logging, dependencies  
+**Output**: Security report with Critical/High/Medium/Low issues and overall score
+
+**Example**:
+```
+/security-audit
+```
+
+See: [security-audit.md](security-audit.md)
+
+---
+
+### `/scraper-run [scraper_name] [options]`
+**Purpose**: Run a data scraper with full dry-run → confirm → execute → score workflow  
+**When to use**: When collecting new data (venues, properties, visas, companies)  
+**Available scrapers**: google-places, bayut, visa-portal, companies  
+**Workflow**:
+1. Verify prerequisites (env vars, database, Redis)
+2. Dry-run mode (show what would be collected)
+3. Ask for confirmation
+4. Execute actual scrape with rate limiting
+5. Calculate composite scores
+6. Report results
+
+**Example**:
+```
+/scraper-run google-places --area dubai-marina --limit 50
+/scraper-run bayut --area downtown --bedrooms 2
+```
+
+See: [scraper-run.md](scraper-run.md)
+
+---
+
+### `/generate-pages [template_type]`
+**Purpose**: Trigger AI enrichment and Next.js static page generation  
+**When to use**: After scraping new data, after changing page templates, for full rebuild  
+**Template types**: venue-area, properties, visa-guides, buildings, companies, all  
+**Workflow**:
+1. Verify sufficient data in database
+2. Run AI enrichment (generate unique summaries)
+3. Build Next.js (all static pages)
+4. Verify generated pages and sitemap
+5. Test sample pages load correctly
+6. Report results and next steps
+
+**Example**:
+```
+/generate-pages venue-area
+/generate-pages all
+```
+
+See: [generate-pages.md](generate-pages.md)
+
+---
+
 ## Future Commands (To Add)
 
 These commands should be created in future sessions:
 
 - `/test [file|all]` — Run pytest with coverage, show gaps
 - `/lint` — Run Black, isort, ESLint, mypy
-- `/scrape [data-source]` — Trigger scraper locally (Google Places, Bayut, etc.)
 - `/db` — Database utilities (migrate, seed, backup, restore)
 - `/logs [service]` — Tail VPS logs (API, Celery, nginx)
 - `/monitor` — Real-time health monitoring (API, DB, Redis, Celery)
