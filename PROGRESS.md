@@ -413,22 +413,41 @@
 
 ---
 
+## IN PROGRESS
+✓ Prompt 20 Complete: Next.js Frontend Foundation
+
+### Phase 2a: Frontend Setup & Configuration (Prompt 20)
+- [x] Updated package.json with next-seo, next-sitemap, clsx, class-variance-authority
+- [x] Enhanced next.config.js with security headers, www→non-www redirect, image domains
+- [x] Created lib/types.ts — 12 TypeScript interfaces (APIResponse, Area, Category, VenueListItem, VenueDetail, Developer, PropertyListItem, VisaNationalityGuide, page path types)
+- [x] Created lib/api.ts — 13 typed API functions (getAreas, getVenuesByAreaCategory, getVenue, getProperties, getProperty, getVisaGuide, getVisaGuides, page path endpoints)
+- [x] Created lib/seo.ts — SEO utilities + 4 schema.org JSON-LD builders (ItemList, Breadcrumb, HowTo, Organization)
+- [x] Created .env.local with NEXT_PUBLIC_API_URL and NEXT_PUBLIC_SITE_URL
+- [x] Created tsconfig.json with strict TypeScript config and @/* path alias
+- [x] Created pages/_app.tsx (App component wrapper)
+- [x] Created pages/index.tsx (Homepage with SEO metadata and component cards)
+- [x] Created styles/globals.css (Tailwind imports + utility classes)
+- [x] Created tailwind.config.ts with Dubai color theme
+- [x] Created postcss.config.js (Tailwind + autoprefixer)
+- [x] Created .eslintrc.json (next/core-web-vitals)
+- [x] npm install completed (653 packages, 4 high severity vulnerabilities deferred)
+- [x] Verified Next.js dev server starts on localhost:3000 ✓
+
+---
+
 ## NEXT TASK
 
-→ **Phase 2**: Next.js frontend foundation and page generation engine
+→ **Phase 2b**: Dynamic page generation with getStaticPaths + getStaticProps
 
-Phase 1 is architecturally complete (all backend infrastructure working). Phase 2 will:
-1. Create Next.js app structure with Pages Router
-2. Implement getStaticPaths + getStaticProps for page generation
-3. Build venue/property/visa/company detail pages
-4. Integrate Redis caching for page paths
-5. Add schema.org JSON-LD markup
-6. Deploy to Vercel
-
-**Before starting Phase 2**:
-- Optional: Fix remaining 5 unit tests (update VenueScoreInput dataclass field defaults)
-- Optional: Run full integration test suite with real PostgreSQL
-- Or proceed directly to Phase 2 (unit test fixes can be deferred)
+Phase 2b will:
+1. Create venue detail page: pages/[category]/[area]/[slug].tsx
+2. Create property detail page: pages/apartments/[area]/[bedrooms]/[price_bucket]/[slug].tsx
+3. Create visa guide page: pages/visa-guide/[nationality]/[visa_type]/[slug].tsx
+4. Implement getStaticPaths calling API endpoints
+5. Implement getStaticProps with Redis caching
+6. Add schema.org JSON-LD to each page
+7. Create reusable page components (VenueCard, PropertyCard, VisaGuideCard)
+8. Test page generation with npm run build
 
 ---
 
