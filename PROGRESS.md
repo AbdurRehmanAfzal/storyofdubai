@@ -18,14 +18,24 @@
 
 ## IN PROGRESS
 ✓ Prompt 2 Complete: Local Config & Environment Setup
-✓ Prompt 3 (Partial): Code Style & Architecture Rules Documented
+✓ Prompt 3 Complete: Code Style & Architecture Rules Documented
+✓ Prompt 4 (Current): Command Documentation & Workflow Automation
+
+## COMPLETED (Prompt 4)
+- [x] Created .claude/commands/review.md (code review automation)
+- [x] Created .claude/commands/fix-issue.md (issue fix workflow)
+- [x] Created .claude/commands/deploy.md (VPS deployment procedure)
+- [x] Created .claude/commands/INDEX.md (command reference)
 
 ## NEXT TASK
-→ **Prompt 3 (Continued)**: Database Schema & API Scaffolding
-  - Create Alembic migrations for core tables (pages, restaurants, properties, etc.)
+→ **Phase 1 Sprint 1**: Database Schema & API Scaffolding
+  - Create Alembic migrations for core tables (venues, properties, visa_guides, companies, areas, categories, scrape_jobs, ai_enrichments)
+  - Set up SQLAlchemy models with proper indexes and constraints
+  - Create Pydantic schemas for request/response validation
   - Scaffold FastAPI endpoints for `/api/v1/`
-  - Set up SQLAlchemy models and Pydantic schemas
+  - Implement standard response envelope and error handling
   - Create health check endpoint
+  - Write integration tests for all endpoints
 
 ## Blockers
 None
