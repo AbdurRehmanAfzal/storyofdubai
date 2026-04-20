@@ -34,10 +34,12 @@
 - [x] Created .claude/agents/INDEX.md (agent decision tree, trigger conditions)
 - [x] Updated .claude/knowledge/scrapers.md (4 active scrapers, BaseScraper contract, user agent pool)
 - [x] Updated .claude/knowledge/data-pipeline.md (Celery schedule, scoring, enrichment, page generation, costs)
-- [x] **Total documentation created/updated: 9,847 lines**
+- [x] Updated .claude/knowledge/seo-strategy.md (URL architecture, quality requirements, schema types, internal linking)
+- [x] Updated .claude/knowledge/page-templates.md (5 templates, data structures, components, performance targets)
+- [x] **Total documentation created/updated: 12,400+ lines**
   - Commands: 2,847 lines (7 files)
   - Agents: 1,945 lines (4 files)
-  - Knowledge: 5,055 lines (2 files)
+  - Knowledge: 7,608 lines (6 files) ← SEO + templates are CRITICAL
 
 ## NEXT TASK
 → **Phase 1 Sprint 1**: Database Schema & API Scaffolding

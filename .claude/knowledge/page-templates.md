@@ -1,9 +1,485 @@
-# Page Templates & Content Structure
+# Page Template Knowledge
 
-## Template 1: Restaurant Page
-**File**: `frontend/pages/restaurants/[area]/[name].tsx`  
-**Data**: Fetched from `/api/v1/restaurants/{id}`  
-**URL Example**: `/restaurants/dubai-marina/nobu/`
+Complete specification of all page templates, data structures, and component library.
+
+---
+
+## Template 1: Venue Area Hub (`/[category]/[area]/`)
+
+**File**: `frontend/pages/[category]/[area].tsx`  
+**Data source**: `/api/v1/page-paths/[category]/[area]/?limit=20`  
+**Example**: `/restaurants/dubai-marina/`
+
+**Purpose**: Primary ranking page for each category × area combination. High commercial intent.
+
+### Data Requirements
+
+```typescript
+interface VenueAreaHub {
+  area: string              // "Dubai Marina"
+  area_slug: string         // "dubai-marina"
+  category: string          // "Restaurants"
+  category_slug: string     // "restaurants"
+  total_venues: number      // Total in this area+category
+  venues: Venue[]           // Top 20 by composite_score
+}
+
+interface Venue {
+  id: number
+  name: string
+  slug: string              // Unique per entity type
+  rating: number            // 0-5
+  review_count: number
+  composite_score: number   // 0-100
+  price_range: string       // "$", "$$", "$$$", "$$$$"
+  cuisine_type: string      // For restaurants
+  image_url: string
+}
+```
+
+### Page Structure
+
+```
+H1: Best {Category} in {Area} Dubai
+Subtitle: Top-rated {category} with ratings, reviews, and {CTA}
+
+Quick Stats:
+  - Total venues: {count}
+  - Average rating: {avg}/5
+  - Price range: {min}-{max}
+
+Featured List (Top 5):
+  1. Venue Name (4.8★, 1,240 reviews)
+  2. Venue Name (4.7★, 890 reviews)
+  ...
+
+[Affiliate CTA Block]
+
+Related Areas:
+  - Link to nearby area hubs
+  - 5 other areas in same emirate
+
+Schema.org:
+  - ItemList (venues)
+  - BreadcrumbList
+  - LocalBusiness (for featured venues)
+```
+
+### Meta Tags
+
+```html
+<title>Best {Category} in {Area}, Dubai | Story of Dubai</title>
+<meta name="description" 
+      content="Top-rated {category} in {area}. Ratings, reviews, price ranges, and {CTA}. Updated 2026." />
+<link rel="canonical" href="https://storyofdubai.com/{category}/{area}/" />
+```
+
+### ISR Settings
+
+```typescript
+export async function getStaticProps({ params }) {
+  return {
+    props: { /* data */ },
+    revalidate: 86400  // 24 hours
+  }
+}
+```
+
+---
+
+## Template 2: Individual Venue (`/[category]/[area]/[venue-slug]/`)
+
+**File**: `frontend/pages/[category]/[area]/[venue-slug].tsx`  
+**Data source**: `/api/v1/venues/{slug}/`  
+**Example**: `/restaurants/dubai-marina/nobu/`
+
+**Purpose**: Individual listing page. Medium commercial intent, high CTR for branded searches.
+
+### Data Requirements
+
+```typescript
+interface VenuePage {
+  id: number
+  name: string
+  slug: string
+  area: string
+  area_slug: string
+  category: string
+  category_slug: string
+  
+  // Ratings & Reviews
+  rating: number            // 0-5
+  review_count: number
+  composite_score: number   // 0-100
+  score_breakdown: {
+    rating_contribution: number
+    recency_contribution: number
+    review_count_contribution: number
+  }
+  
+  // Business Details
+  address: string
+  phone: string
+  website: string
+  opening_hours: {
+    monday: string          // "11:00 AM - 11:00 PM"
+    // ... each day
+  }
+  
+  // Category-specific (for restaurants)
+  cuisine_type: string
+  price_range: string
+  dine_in: boolean
+  delivery: boolean
+  takeout: boolean
+  
+  // AI Enrichment
+  ai_summary: string        // Unique 150-300 word intro
+  highlights: string[]      // ["Michelin-starred", "Romantic ambiance"]
+  
+  // Images
+  image_url: string         // Primary image
+  images: string[]          // Gallery
+  
+  // Affiliate
+  reservation_url: string   // Booking affiliate link
+  
+  // Related
+  nearby_venues: Venue[]    // 3-5 similar venues in same area
+}
+```
+
+### Page Structure
+
+```
+Breadcrumb: Home > {Category} > {Area} > {Venue}
+
+H1: {Name} — {Cuisine Type} in {Area}, Dubai
+
+[Hero Image]
+
+Score Badge: {Composite Score}/100
+"Excellent - 4.8★ based on 1,240 reviews"
+
+Quick Facts (2-column):
+  Rating: 4.8/5 (1,240 reviews)
+  Cuisine: Japanese, Fusion
+  Area: Dubai Marina
+  Price Range: $$$
+  Phone: +971 4 777 6777
+  Website: noburestaurants.com
+  Hours: 6:00 PM - 11:00 PM
+
+[Affiliate CTA: Book a Table]
+
+AI-Generated Introduction (150-300 words)
+"Dubai Marina is home to some of the city's finest dining establishments..."
+
+Sections:
+  - About This Restaurant
+  - Location & Hours
+  - Amenities (Dine-in, Delivery, Takeout)
+  - Highlights
+  - Nearby Restaurants (Internal Links)
+
+[JSON-LD Schema]
+```
+
+### Meta Tags
+
+```html
+<title>{Name} | {Cuisine} in {Area}, Dubai | Story of Dubai</title>
+<meta name="description" 
+      content="{Name}: {cuisine} restaurant in {area}. {rating}★ ({review_count} reviews). {address}. Book online." />
+<link rel="canonical" href="https://storyofdubai.com/{category}/{area}/{slug}/" />
+```
+
+---
+
+## Template 3: Property Filter (`/apartments/[area]/[bedrooms]-bedroom/[price-bucket]/`)
+
+**File**: `frontend/pages/apartments/[area]/[bedrooms]-bedroom/[price-bucket].tsx`  
+**Data source**: `/api/v1/properties/?area={area}&bedrooms={bedrooms}&price_min={min}&price_max={max}`  
+**Example**: `/apartments/downtown-dubai/2-bedroom/100k-200k/`
+
+**Purpose**: High commercial intent. Best for property affiliate links (Bayut, PropertyFinder).
+
+### Data Requirements
+
+```typescript
+interface PropertyFilterPage {
+  area: string
+  area_slug: string
+  bedrooms: number
+  price_bucket: string          // "under-50k", "50k-100k", etc.
+  price_min_aed: number
+  price_max_aed: number
+  total_properties: number
+  properties: Property[]         // Top 20 by composite_score
+}
+
+interface Property {
+  id: number
+  title: string
+  slug: string
+  bedrooms: number
+  bathrooms: number
+  area_sqft: number
+  price_aed: number
+  price_currency: string        // "AED"
+  price_type: string            // "rent" or "sale"
+  property_type: string         // "apartment", "villa", "townhouse"
+  area: string
+  address: string
+  image_url: string
+  composite_score: number
+}
+```
+
+### Page Structure
+
+```
+H1: {Bedrooms}-Bedroom Apartments for Rent in {Area}, Dubai
+
+Filter Summary:
+  Area: {Area}
+  Bedrooms: {Bedrooms}
+  Price Range: AED {min}—{max}/year
+
+Results: {total} apartments found, sorted by score
+
+List (Top 20):
+  1. {Title} - AED {price} | {sqft} sqft | {rating}★
+  2. {Title} - AED {price} | {sqft} sqft | {rating}★
+  ...
+
+Affiliate CTA:
+  "Find more on Bayut.com →"
+  "View on PropertyFinder →"
+
+Sections:
+  - Price Analysis
+  - Popular Buildings
+  - Area Guide
+```
+
+### ISR Settings
+
+```typescript
+revalidate: 43200  // 12 hours (prices change faster)
+```
+
+---
+
+## Template 4: Visa Guide (`/visa-guide/[nationality]/[visa-type]/`)
+
+**File**: `frontend/pages/visa-guide/[nationality]/[visa-type].tsx`  
+**Data source**: `/api/v1/visa-guides/{nationality}/{visa-type}/`  
+**Example**: `/visa-guide/united-states/visit-visa/`
+
+**Purpose**: Informational. Highest RPM for Google Ads (legal/finance category). Good for visa consultant affiliates.
+
+### Data Requirements
+
+```typescript
+interface VisaGuidePage {
+  nationality: string           // "United States"
+  nationality_slug: string      // "united-states"
+  visa_type: string             // "Visit Visa"
+  visa_type_slug: string        // "visit-visa"
+  
+  // Key Info
+  eligibility: boolean
+  processing_time: string       // "7-14 days"
+  validity: string              // "30 days"
+  cost_aed: number
+  
+  // Details
+  overview: string              // Full description
+  requirements: string[]        // List of requirements
+  documents: {
+    name: string
+    description: string
+  }[]
+  faq: {
+    question: string
+    answer: string
+  }[]
+  
+  // AI Enrichment
+  ai_summary: string           // HowTo-style guide
+  
+  // Affiliate
+  apply_url: string            // Government portal or consultant link
+}
+```
+
+### Page Structure
+
+```
+H1: {Nationality} {Visa Type} for UAE — Requirements & Process
+
+Quick Summary Box:
+  Processing Time: 7-14 days
+  Validity: 30 days
+  Cost: AED 100
+  Eligibility: ✓ Eligible for {nationality} nationals
+
+Table of Contents
+  1. Overview
+  2. Eligibility
+  3. Required Documents
+  4. Application Process
+  5. FAQs
+
+Sections:
+
+1. Overview
+   {AI-generated 300-word intro about visa and process}
+
+2. Eligibility
+   - Who is eligible?
+   - Who is NOT eligible?
+
+3. Required Documents
+   Checklist:
+   ☐ Valid Passport
+   ☐ Return Ticket
+   ☐ Proof of Accommodation
+   ☐ Bank Statement
+
+4. Step-by-Step Application
+   Step 1: ...
+   Step 2: ...
+   (Schema.org: HowToStep)
+
+5. FAQs
+   Q: How long does processing take?
+   A: ...
+   (Schema.org: FAQPage)
+
+[CTA: Apply Now / Get Visa Consultant Help]
+```
+
+### Schema.org
+
+```json
+{
+  "@type": "HowTo",
+  "name": "{Nationality} {VisaType} for UAE",
+  "step": [...]
+}
+```
+
+### ISR Settings
+
+```typescript
+revalidate: 604800  // 7 days (rules change slowly)
+```
+
+---
+
+## Template 5: Building Profile (`/buildings/[building-slug]/`)
+
+**File**: `frontend/pages/buildings/[building-slug].tsx`  
+**Data source**: `/api/v1/buildings/{slug}/`  
+**Example**: `/buildings/burj-khalifa/`
+
+### Page Structure
+
+```
+H1: {Building Name} — Dubai
+
+Key Stats:
+  Height: {height} meters
+  Completed: {year}
+  Developer: {developer}
+  Location: {area}
+
+Image Gallery
+
+Overview
+
+Notable Features
+
+Nearby Amenities:
+  - Restaurants
+  - Shopping
+  - Parks
+
+Related Buildings
+
+Related Properties (affiliate links)
+```
+
+---
+
+## Component Library
+
+### VenueCard
+Shows venue with score badge, key stats, affiliate link
+```typescript
+<VenueCard 
+  name="Nobu"
+  rating={4.8}
+  composite_score={92}
+  area="Dubai Marina"
+  image={url}
+  href="/restaurants/dubai-marina/nobu/"
+/>
+```
+
+### ScoreBadge
+Displays 0-100 score with color coding
+```typescript
+<ScoreBadge score={92} />  // Green
+<ScoreBadge score={65} />  // Yellow
+<ScoreBadge score={40} />  // Red
+```
+
+### AffiliateCTA
+Context-aware call-to-action
+```typescript
+<AffiliateCTA 
+  type="restaurant"
+  affiliate_link="..."
+  cta_text="Book a Table"
+/>
+```
+
+### BreadcrumbNav
+Structured breadcrumb + schema.org
+```typescript
+<BreadcrumbNav items={[
+  { label: "Home", href: "/" },
+  { label: "Restaurants", href: "/restaurants/" },
+  { label: "Dubai Marina", href: "/restaurants/dubai-marina/" },
+  { label: "Nobu", href: "/restaurants/dubai-marina/nobu/" }
+]} />
+```
+
+### RelatedPages
+Auto-fetches and renders internal links
+```typescript
+<RelatedPages 
+  entity_id={venue_id}
+  entity_type="venue"
+  limit={5}
+/>
+```
+
+---
+
+## Performance Targets
+
+| Page Type | Build Time | Load Time | Lighthouse |
+|-----------|-----------|-----------|-----------|
+| Area Hub | 30-60s per 100 pages | <1s | >85 |
+| Individual Venue | 10-20s per 100 pages | <800ms | >90 |
+| Property Filter | 15-30s per 100 pages | <1s | >85 |
+| Visa Guide | 5-10s per 50 pages | <600ms | >95 |
+
+Total 10k page build: ~20-30 minutes on Vercel
 
 ### Data Structure
 ```typescript
