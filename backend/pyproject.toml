@@ -1,3 +1,13 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storyofdubai-backend"
+version = "0.1.0"
+description = "Story of Dubai — Programmatic SEO Backend"
+requires-python = ">=3.12"
+
 [tool.black]
 line-length = 88
 target-version = ['py312']
@@ -7,59 +17,6 @@ include = '\.pyi?$'
 profile = "black"
 line_length = 88
 multi_line_output = 3
-
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-env = [
-    "ENVIRONMENT=testing",
-    "DATABASE_URL=postgresql+asyncpg://test:test@localhost:5432/storyofdubai_test",
-    "DATABASE_URL_SYNC=postgresql://test:test@localhost:5432/storyofdubai_test",
-    "REDIS_URL=redis://localhost:6379/15",
-    "SECRET_KEY=test-secret-key-minimum-32-characters-long",
-]
-
-[tool.coverage.run]
-source = ["app"]
-omit = ["*/tests/*", "*/migrations/*"]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "if TYPE_CHECKING:",
-]
-[tool.ruff]
-line-length = 88
-target-version = "py312"
-select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # pyflakes
-    "I",    # isort
-    "N",    # pep8-naming
-    "D",    # pydocstyle
-    "UP",   # pyupgrade
-    "ANN",  # flake8-annotations
-]
-ignore = [
-    "E501",  # Line too long (handled by black)
-    "D100",  # Missing module docstring
-    "D104",  # Missing package docstring
-    "ANN101", # Missing type annotation for self
-    "ANN102", # Missing type annotation for cls
-]
-exclude = [
-    ".git",
-    ".venv",
-    "build",
-    "dist",
-    "alembic",
-    "__pycache__",
-]
 
 # ═══════════════════════════════════════════════════════════════════════════
 # PYTEST — Testing Framework
@@ -72,12 +29,7 @@ python_functions = ["test_*"]
 addopts = """
   --strict-markers
   --tb=short
-  --disable-warnings
   -v
-  --cov=app
-  --cov-report=term-missing:skip-covered
-  --cov-report=html
-  --cov-report=xml
 """
 asyncio_mode = "auto"
 markers = [
@@ -86,6 +38,13 @@ markers = [
     "scraper: Scraper tests",
     "slow: Slow tests",
 ]
+
+[tool.pytest.env]
+ENVIRONMENT = "testing"
+DATABASE_URL = "postgresql+asyncpg://soduser:devpassword123@localhost:5432/storyofdubai_test"
+DATABASE_URL_SYNC = "postgresql://soduser:devpassword123@localhost:5432/storyofdubai_test"
+REDIS_URL = "redis://localhost:6379/15"
+SECRET_KEY = "test-secret-key-minimum-32-characters-long"
 
 # ═══════════════════════════════════════════════════════════════════════════
 # COVERAGE — Code Coverage
@@ -109,6 +68,33 @@ exclude_lines = [
 ]
 
 # ═══════════════════════════════════════════════════════════════════════════
+# RUFF — Fast Linter
+# ═══════════════════════════════════════════════════════════════════════════
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "D100",  # Missing module docstring
+    "D104",  # Missing package docstring
+]
+exclude = [
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "alembic",
+    "__pycache__",
+]
+
+# ═══════════════════════════════════════════════════════════════════════════
 # MYPY — Static Type Checking
 # ═══════════════════════════════════════════════════════════════════════════
 [tool.mypy]
@@ -125,13 +111,3 @@ module = [
     "alembic.*",
 ]
 ignore_missing_imports = true
-
-# ═══════════════════════════════════════════════════════════════════════════
-# PYLINT — Additional Linting
-# ═══════════════════════════════════════════════════════════════════════════
-[tool.pylint.messages_control]
-disable = [
-    "C0111",  # missing-docstring
-    "C0103",  # invalid-name
-    "R0903",  # too-few-public-methods
-]

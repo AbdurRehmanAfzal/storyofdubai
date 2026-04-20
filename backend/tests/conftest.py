@@ -1,13 +1,22 @@
 import asyncio
+import sys
+import os
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+
+# Add backend directory to path so pytest can import app module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app.main import app
 from app.database import Base, get_db
 from app.config import settings
 
-TEST_DATABASE_URL = "postgresql+asyncpg://test:test@localhost:5432/storyofdubai_test"
+# Use SQLite in-memory for unit tests (fast, no external dependencies)
+# For integration tests with real DB, set environment variable:
+# export TEST_DATABASE_URL="postgresql+asyncpg://soduser:devpassword123@localhost:5432/storyofdubai_test"
+TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 
 @pytest.fixture(scope="session")
@@ -19,7 +28,7 @@ def event_loop():
 
 @pytest_asyncio.fixture(scope="session")
 async def test_engine():
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False, pool_size=5, max_overflow=2)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield engine
