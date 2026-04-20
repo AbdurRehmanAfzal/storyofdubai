@@ -100,14 +100,69 @@
 
 ---
 
+### Phase 1 Sprint 1: FastAPI Core (Prompt 14 Complete)
+
+- [x] Created backend/app/config.py (80 lines)
+  - Pydantic BaseSettings with .env file support
+  - Environment validation (development/testing/production)
+  - App settings: DEBUG, SECRET_KEY, VERSION
+  - Database URLs (async + sync)
+  - Redis URLs (main + Celery broker + results)
+  - Cache TTLs: 1h (rankings), 24h (venues), 6h (page-paths), 7d (visa)
+  - CORS whitelisted origins (localhost:3000, storyofdubai.com)
+  - OpenAI config: model (gpt-4o-mini), budget ($2/day)
+  - Google Places config: budget ($5/day)
+  - Scraper defaults: 2s delay, 1s jitter, 3 retries
+  - Pagination: 20 default, 100 max
+  - Rate limiting: 100 req/min
+
+- [x] Created backend/app/database.py (60 lines)
+  - Async SQLAlchemy engine (pool_size=10, overflow=20)
+  - AsyncSessionLocal factory (expire_on_commit=False)
+  - Base ORM class (DeclarativeBase)
+  - get_db() dependency for FastAPI routes
+  - create_tables() and drop_tables() helpers
+  - NullPool for testing to prevent connection issues
+
+- [x] Created backend/app/main.py (100 lines)
+  - FastAPI app initialization with settings
+  - Lifespan context manager (startup/shutdown logging)
+  - Rate limiting (slowapi + Limiter)
+  - CORS middleware (whitelisted origins)
+  - Request logging middleware (method, path, status, duration_ms)
+  - Global exception handler (no stack traces to clients)
+  - Health check endpoint (GET /api/v1/health)
+  - Returns standard response envelope (success/data/meta/error)
+
+- [x] Created backend/app/api/v1/__init__.py with router aggregation
+  - Includes all sub-routers with prefixes and tags
+  - venues, areas, categories, properties, visa_guides, page_paths
+
+- [x] Created 6 placeholder router files (all ready for endpoints)
+  - venues.py, areas.py, categories.py, properties.py, visa_guides.py, page_paths.py
+
+- [x] Created .env file for local development testing
+
+- [x] Verified all imports and modules load successfully
+  - Config → Settings loads from .env ✅
+  - Database → AsyncSessionLocal + Base ✅
+  - Main → FastAPI app + routes ✅
+
+- [x] **TESTED: FastAPI server starts successfully**
+  - ✅ Uvicorn server starts on 127.0.0.1:8000
+  - ✅ Health endpoint responds with correct envelope
+  - ✅ Request logging works (duration_ms, status)
+  - ✅ CORS middleware active
+  - ✅ Rate limiting active
+
 ## IN PROGRESS
-✓ Prompt 13 Complete: Backend Docker + Folder Structure + Pinned Dependencies
+✓ Prompt 14 Complete: FastAPI Core + Config + Database + Health Endpoint
 
 ---
 
 ## NEXT TASK
 
-→ **Prompt 14 (Phase 1 Sprint 1 Continued)**: Database Schema & Core Models
+→ **Prompt 15 (Phase 1 Sprint 1 Continued)**: Database Schema & SQLAlchemy Models
 
 Priority order:
 1. **Create Alembic initial migration** (Prompt 14)
