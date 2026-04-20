@@ -1,20 +1,55 @@
 {
-  "model": "claude-opus-4-6",
-  "theme": "auto",
-  "editor": "vim",
-  "hooks": {
-    "on-post-save": "if [[ $FILE == *.py ]]; then cd backend && python -m py_compile \"${FILE#backend/}\" 2>&1 || true; fi",
-    "after-edit": "git diff --no-color"
-  },
+  "version": "1.0",
+  "project": "storyofdubai",
   "permissions": {
-    "allowed": [
-      "bash",
-      "read",
-      "write",
-      "edit",
-      "glob",
-      "grep"
+    "allow": [
+      "Bash(git:*)",
+      "Bash(python:*)",
+      "Bash(pip:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(pytest:*)",
+      "Bash(alembic:*)",
+      "Bash(celery:*)",
+      "Bash(uvicorn:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(echo:*)",
+      "Bash(curl:*)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Read(*)",
+      "Write(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(DROP TABLE:*)",
+      "Bash(DELETE FROM:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(rsync:*)"
     ]
   },
-  "cwd": "/home/abdurrehmanafzal/Documents/storyofdubai"
+  "context": {
+    "always_read": [
+      "CLAUDE.md",
+      "PROGRESS.md"
+    ],
+    "on_start": "Read CLAUDE.md and PROGRESS.md before any task. If PROGRESS.md has an IN PROGRESS task, ask the user if they want to continue it."
+  },
+  "agents": {
+    "code_reviewer": ".claude/agents/code-reviewer.md",
+    "security_auditor": ".claude/agents/security-auditor.md"
+  },
+  "style": {
+    "language": "en",
+    "verbosity": "normal",
+    "always_update_progress": true
+  }
 }
