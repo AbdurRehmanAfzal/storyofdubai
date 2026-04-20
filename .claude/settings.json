@@ -1,0 +1,20 @@
+{
+  "model": "claude-opus-4-6",
+  "theme": "auto",
+  "editor": "vim",
+  "hooks": {
+    "on-post-save": "if [[ $FILE == *.py ]]; then cd backend && python -m py_compile \"${FILE#backend/}\" 2>&1 || true; fi",
+    "after-edit": "git diff --no-color"
+  },
+  "permissions": {
+    "allowed": [
+      "bash",
+      "read",
+      "write",
+      "edit",
+      "glob",
+      "grep"
+    ]
+  },
+  "cwd": "/home/abdurrehmanafzal/Documents/storyofdubai"
+}
