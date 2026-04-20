@@ -435,19 +435,40 @@
 
 ---
 
+## IN PROGRESS
+✓ Prompt 21 Complete: Reusable Component Library
+
+### Phase 2b: Component Library (Prompt 21)
+- [x] Created components/Layout.tsx — Page wrapper with header/footer, SEO Head, schema.org JSON-LD injection
+- [x] Created components/ScoreBadge.tsx — Color-coded score display (green/blue/amber/gray based on 80/60/40 thresholds) with labels (Exceptional/Very Good/Good/Fair/Listed)
+- [x] Created components/VenueCard.tsx — Venue list item with rank, rating, review count, price tier, affiliate CTA button
+- [x] Created components/BreadcrumbNav.tsx — Navigation breadcrumbs (Home / Category / Area / Page)
+- [x] Created components/AffiliateCTA.tsx — Context-aware affiliate CTAs (restaurants→TheFork, hotels→Booking.com, attractions→Viator, apartments→Bayut)
+- [x] Created components/EmailCapture.tsx — Newsletter subscription form (Beehiiv integration placeholder for Phase 4)
+- [x] npx tsc --noEmit ✓ ZERO TypeScript errors
+
+**Component Reusability**:
+- Layout wraps all pages with consistent header/footer/schema.org
+- ScoreBadge used on venue, property, and company cards
+- VenueCard is template for PropertyCard and CompanyCard (same pattern)
+- BreadcrumbNav used on all detail pages
+- AffiliateCTA customized per category
+- EmailCapture used on listing pages to build mailing list
+
+---
+
 ## NEXT TASK
 
-→ **Phase 2b**: Dynamic page generation with getStaticPaths + getStaticProps
+→ **Phase 2c**: Dynamic page generation with getStaticPaths + getStaticProps
 
-Phase 2b will:
-1. Create venue detail page: pages/[category]/[area]/[slug].tsx
-2. Create property detail page: pages/apartments/[area]/[bedrooms]/[price_bucket]/[slug].tsx
-3. Create visa guide page: pages/visa-guide/[nationality]/[visa_type]/[slug].tsx
-4. Implement getStaticPaths calling API endpoints
-5. Implement getStaticProps with Redis caching
-6. Add schema.org JSON-LD to each page
-7. Create reusable page components (VenueCard, PropertyCard, VisaGuideCard)
-8. Test page generation with npm run build
+Phase 2c will:
+1. Create pages/[category]/[area]/[slug].tsx (venue detail)
+2. Create pages/apartments/[area]/[bedrooms]/[price_bucket]/[slug].tsx (property detail)
+3. Create pages/visa-guide/[nationality]/[visa_type]/[slug].tsx (visa detail)
+4. Implement getStaticPaths calling API page-paths endpoints
+5. Implement getStaticProps with Redis caching for 10,000+ pages
+6. Build and test static generation: npm run build
+7. Deploy to Vercel for ISR testing
 
 ---
 
