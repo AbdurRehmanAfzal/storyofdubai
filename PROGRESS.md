@@ -457,18 +457,61 @@
 
 ---
 
+## IN PROGRESS
+✓ Prompt 22 Complete: Venue Page Templates (Hub & Detail)
+
+### Phase 2c: Venue Page Templates (Prompt 22)
+- [x] Created pages/[category]/[area]/index.tsx — Venue area hub page (lists all venues in category/area)
+  * getStaticPaths: fetches from /page-paths/venue-area/ API endpoint
+  * getStaticProps: loads venues, area, category data in parallel
+  * ISR revalidate: 86400 (24-hour rebuilds)
+  * Schema.org: ItemList (venues) + BreadcrumbList
+  * Components: BreadcrumbNav, AffiliateCTA, VenueCard (ranked 1-N), EmailCapture
+  * Related areas: internal links to other areas in same category
+  
+- [x] Created pages/[category]/[area]/[venue].tsx — Individual venue detail page
+  * getStaticPaths: enumerates all venues from getVenuesByAreaCategory
+  * getStaticProps: fetches single venue by slug
+  * ISR revalidate: 86400 (24-hour rebuilds)
+  * Schema.org: LocalBusiness (name, phone, address, aggregateRating) + BreadcrumbList
+  * Layout: 2/3 main content + 1/3 sidebar (address, phone, website, area link)
+  * Stats grid: Google rating, review count, price tier
+  * Affiliate CTA: primary button (Book / Reserve)
+  * Email capture: newsletter signup
+  
+- [x] npx tsc --noEmit ✓ ZERO TypeScript errors
+- [x] npm run build ✓ Build succeeds (SSG pages generated)
+
+**Build Output**:
+```
+Route (pages)                             Size     First Load JS
+├ ○ /                                     1.46 kB        81.4 kB
+├ ● /[category]/[area]                    3.6 kB           86 kB
+├ ● /[category]/[area]/[venue]            3.15 kB        85.6 kB
+└ ○ /404                                  180 B          80.1 kB
+```
+
+**Critical Features**:
+- getStaticPaths handles dynamic routing for all venue combinations
+- getStaticProps calls API in parallel (3 endpoints for hub, 1 for detail)
+- fallback: 'blocking' enables on-demand generation for new venues
+- ISR at 86400s (24h) auto-refreshes stale pages without full rebuild
+- Schema.org markup ensures rich search results (LocalBusiness, ratings, breadcrumbs)
+- All components reuse from library (Layout, ScoreBadge, VenueCard, BreadcrumbNav, EmailCapture)
+
+---
+
 ## NEXT TASK
 
-→ **Phase 2c**: Dynamic page generation with getStaticPaths + getStaticProps
+→ **Phase 2d**: Property and Visa Guide page templates
 
-Phase 2c will:
-1. Create pages/[category]/[area]/[slug].tsx (venue detail)
-2. Create pages/apartments/[area]/[bedrooms]/[price_bucket]/[slug].tsx (property detail)
-3. Create pages/visa-guide/[nationality]/[visa_type]/[slug].tsx (visa detail)
-4. Implement getStaticPaths calling API page-paths endpoints
-5. Implement getStaticProps with Redis caching for 10,000+ pages
-6. Build and test static generation: npm run build
-7. Deploy to Vercel for ISR testing
+Phase 2d will:
+1. Create pages/apartments/[area]/[bedrooms]/[price_bucket]/[slug].tsx (property detail)
+2. Create pages/visa-guide/[nationality]/[visa_type]/[slug].tsx (visa guide detail)
+3. Property listing hub: pages/apartments/index.tsx (filter by area/bedrooms/price)
+4. Visa guide listing hub: pages/visa-guide/index.tsx
+5. Build and test: npm run build
+6. Verify all 2,000+ pages generate in under 5 minutes
 
 ---
 
