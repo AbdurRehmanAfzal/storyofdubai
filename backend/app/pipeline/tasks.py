@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from typing import List
 import structlog
@@ -6,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.celery_app import celery_app
 from app.database import AsyncSessionLocal
 from app.models import ScrapeJob
+from app.scrapers.google_places_demo import GooglePlacesScraper
+from app.scoring.venue_scorer import VenueScorer
 
 logger = structlog.get_logger()
 
@@ -62,13 +65,39 @@ def update_scrape_job(
 )
 def scrape_google_places_all_areas(self):
     """Scrape Google Places data for all Dubai areas (daily schedule)"""
-    logger.info("Starting: scrape_google_places_all_areas")
-    # TODO: Implement - iterate all areas, call scrape_google_places_single_area
-    return {
-        "task": "scrape_google_places_all_areas",
-        "status": "pending",
-        "message": "Task stub — implementation pending",
-    }
+    logger.info("task_start", task="scrape_google_places_all_areas")
+
+    # Run async scraper synchronously in Celery
+    session = AsyncSessionLocal()
+
+    try:
+        scraper = GooglePlacesScraper(session)
+        result = asyncio.run(scraper.scrape())
+        asyncio.run(session.commit())
+
+        logger.info(
+            "task_complete",
+            task="scrape_google_places_all_areas",
+            inserted=result.get("inserted"),
+            updated=result.get("updated"),
+            api_calls=result.get("api_calls"),
+        )
+
+        return {
+            "task": "scrape_google_places_all_areas",
+            "status": "completed",
+            "result": result,
+        }
+    except Exception as e:
+        logger.error(
+            "task_failed",
+            task="scrape_google_places_all_areas",
+            error=str(e),
+            exc_info=True,
+        )
+        raise
+    finally:
+        asyncio.run(session.close())
 
 
 @celery_app.task(
@@ -103,13 +132,102 @@ def scrape_google_places_single_area(self, area_slug: str, category_slug: str):
 )
 def run_scoring_engine_all(self):
     """Run scoring engine on all active venues (daily schedule)"""
-    logger.info("Starting: run_scoring_engine_all")
-    # TODO: Implement - iterate all active venues, apply VenueScorer
-    return {
-        "task": "run_scoring_engine_all",
-        "status": "pending",
-        "message": "Task stub — implementation pending",
-    }
+    logger.info("task_start", task="run_scoring_engine_all")
+
+    session = AsyncSessionLocal()
+
+    try:
+        from sqlalchemy import select
+        from app.models import Venue
+        from datetime import datetime, timedelta
+
+        async def score_all():
+            # Get all active venues
+            stmt = select(Venue).where(Venue.is_active == True)
+            result = await session.execute(stmt)
+            venues = result.scalars().all()
+
+            scorer = VenueScorer()
+            updated_count = 0
+            error_count = 0
+
+            for venue in venues:
+                try:
+                    # Calculate days since last scrape
+                    if venue.last_scraped_at:
+                        last_scraped = datetime.fromisoformat(
+                            venue.last_scraped_at
+                        )
+                        days_since = (
+                            datetime.utcnow() - last_scraped
+                        ).days
+                    else:
+                        days_since = 365
+
+                    # Build score input
+                    from app.scoring.venue_scorer import VenueScoreInput
+
+                    score_input = VenueScoreInput(
+                        id=venue.id,
+                        google_rating=venue.google_rating,
+                        review_count=venue.review_count,
+                        price_tier=venue.price_tier or 2,
+                        days_since_last_review=days_since,
+                        has_photos=True,  # Assume Google Places has photos
+                        has_phone=bool(venue.phone),
+                        has_website=bool(venue.website),
+                    )
+
+                    # Score venue
+                    score_result = scorer.score(score_input)
+
+                    # Update venue
+                    venue.composite_score = score_result.score
+                    session.add(venue)
+                    updated_count += 1
+
+                except Exception as e:
+                    logger.warning(
+                        "venue_score_failed",
+                        venue_id=venue.id,
+                        venue_name=venue.name,
+                        error=str(e),
+                    )
+                    error_count += 1
+
+            # Commit all updates
+            await session.commit()
+
+            return {
+                "updated": updated_count,
+                "errors": error_count,
+            }
+
+        result = asyncio.run(score_all())
+
+        logger.info(
+            "task_complete",
+            task="run_scoring_engine_all",
+            updated=result.get("updated"),
+            errors=result.get("errors"),
+        )
+
+        return {
+            "task": "run_scoring_engine_all",
+            "status": "completed",
+            "result": result,
+        }
+
+    except Exception as e:
+        logger.error(
+            "task_failed",
+            task="run_scoring_engine_all",
+            error=str(e),
+            exc_info=True,
+        )
+        raise
+    finally:
+        asyncio.run(session.close())
 
 
 @celery_app.task(
