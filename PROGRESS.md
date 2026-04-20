@@ -1,7 +1,7 @@
 # PROGRESS.md — Session State Tracker
 
 **Last Updated**: 2026-04-20  
-**Current Phase**: Phase 0 Complete — Full Project Configuration Done  
+**Current Phase**: Phase 1 Sprint 1 In Progress — Backend Skeleton Complete  
 
 ---
 
@@ -75,43 +75,68 @@
 - [x] Production-ready deployment documentation
 - [x] Session recovery & context persistence system
 
+### Phase 1 Sprint 1: Backend Foundation (Prompts 11-13 In Progress)
+
+- [x] Created backend/Dockerfile (Python 3.12-slim, Playwright chromium, non-root appuser)
+- [x] Created backend/.dockerignore (excludes __pycache__, .pytest_cache, .env, tests/)
+- [x] Updated backend/requirements.txt with exact pinned versions (52 lines)
+  - FastAPI 0.115.0, uvicorn 0.30.6, SQLAlchemy 2.0.35, asyncpg 0.29.0
+  - Celery 5.4.0, Redis 5.1.0, Flower 2.0.1
+  - Playwright 1.47.0, httpx 0.27.2, beautifulsoup4 4.12.3
+  - Pydantic 2.9.2, OpenAI 1.51.0, tenacity 9.0.0, structlog 24.4.0, slowapi 0.1.9
+  - pytest 8.3.3, pytest-asyncio 0.24.0, factory-boy 3.3.1, faker 30.3.0
+  - All dependencies tested — NO CONFLICTS
+- [x] Updated backend/pyproject.toml with pytest configuration
+  - Black (88-char), isort (black profile), pytest (asyncio_mode=auto, 75% coverage)
+  - Coverage config: omit tests/ and migrations/
+- [x] Created complete app/ folder structure (10 packages with __init__.py)
+  - app/__init__.py, app/api/v1/, app/models/, app/schemas/, app/services/
+  - app/scrapers/, app/pipeline/, app/scoring/, app/ai_enrichment/
+- [x] Created complete tests/ folder structure (unit/, integration/)
+- [x] Verified all dependencies install without conflicts
+  - Created test venv, ran `pip install -r requirements.txt`
+  - Tested import of FastAPI, SQLAlchemy, Celery, Playwright, OpenAI
+  - All ✅ passed
+
 ---
 
 ## IN PROGRESS
-None — Phase 0 complete. Ready for Phase 1.
+✓ Prompt 13 Complete: Backend Docker + Folder Structure + Pinned Dependencies
 
 ---
 
 ## NEXT TASK
 
-→ **Phase 1 Sprint 1**: Database Schema & API Scaffolding (Backend Foundation)
+→ **Prompt 14 (Phase 1 Sprint 1 Continued)**: Database Schema & Core Models
 
 Priority order:
-1. **Database Schema Creation** (~2 days)
-   - Create Alembic migrations for core tables: venues, properties, visa_guides, companies, areas, categories, scrape_jobs, ai_enrichments
-   - Define SQLAlchemy models with proper indexes, constraints, soft-delete columns
-   - Create database fixtures for testing
+1. **Create Alembic initial migration** (Prompt 14)
+   - `alembic init alembic` in backend/
+   - Create initial migration for core tables
+   - Tables: areas, categories, venues, properties, visa_guides, companies, developers, free_zones, scrape_jobs, ai_enrichments
+   - Implement soft-delete columns (is_active, created_at, updated_at)
+   - Create composite indexes: (area_id, category_id, composite_score), unique(slug)
 
-2. **API Scaffolding** (~1.5 days)
-   - Scaffold FastAPI endpoints for `/api/v1/`
-   - Implement standard response envelope (success/data/meta/error)
-   - Implement pagination, filtering, sorting
-   - Create health check endpoint
+2. **Create SQLAlchemy models** (Prompt 15)
+   - BaseModel with id, created_at, updated_at, is_active
+   - Venue, Property, VissaGuide, Company, Area, Category, ScrapeJob, AIEnrichment
+   - All with proper relationships, indexes, constraints
 
-3. **Pydantic Schemas** (~1 day)
-   - Create request/response validation schemas
-   - Match API conventions (envelope format, error responses)
-   - Test schema validation
+3. **Create Pydantic schemas** (Prompt 16)
+   - Request/response models for each entity
+   - Standard response envelope (success, data, meta, error)
+   - Pagination meta structure
 
-4. **Integration Tests** (~1.5 days)
-   - Write integration tests for all endpoints
-   - Test pagination, filtering, error cases
-   - Verify response envelope format
+4. **Scaffold FastAPI routes** (Prompt 17)
+   - app/main.py with FastAPI app initialization
+   - app/api/v1/__init__.py router initialization
+   - Health check endpoint
+   - Test with FastAPI Swagger docs
 
-5. **Authentication & Authorization** (~1 day)
-   - Implement Bearer token JWT authentication
-   - Protect admin endpoints
-   - Create token generation/validation utilities
+5. **Integration tests** (Prompt 18)
+   - Test database connection
+   - Test endpoint response format
+   - Test pagination
 
 ---
 
