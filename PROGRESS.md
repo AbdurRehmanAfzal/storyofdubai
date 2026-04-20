@@ -54,11 +54,14 @@ None
   - Created comprehensive CLAUDE.local.md for local development
   - Updated .env.example with detailed environment variables
   - Created reusable SSH setup folder (~/.claude/ssh-setup/)
-- **Prompt 3 (Partial)**:
-  - Created .claude/rules/codestyle.md (Python + TypeScript rules, git conventions)
-  - Created .claude/rules/architecture.md (Backend/Frontend structure, patterns)
-  - Updated backend/pyproject.toml (Black, isort, pytest, coverage, mypy config)
-  - Created .claude/settings.json (permissions: allow git/python/npm, deny rm -rf/DROP)
+- **Prompt 3 (Partial)** — Rules Documentation:
+  - Created .claude/rules/codestyle.md (Python/TypeScript conventions, git)
+  - Created .claude/rules/architecture.md (Backend/Frontend patterns)
+  - Updated backend/pyproject.toml (Black, isort, pytest config)
+  - Created .claude/settings.json (Claude Code permissions)
   - Created .claude/settings.local.json (local SSH permissions)
-  - Created .claude/rules/api-conventions.md (REST endpoints, response format, caching)
-  - Updated .claude/rules/database.md (migrations, indexes, retention, naming)
+  - Created .claude/rules/api-conventions.md (REST API standards, endpoints)
+  - Updated .claude/rules/database.md (Alembic, indexes, naming)
+  - Created .claude/rules/testing.md (pytest, fixtures, coverage 75% minimum)
+  - Updated .claude/rules/security.md (secrets, auth, scraper rules)
+  - **Total rules documentation: 2,400+ lines across 6 files**
