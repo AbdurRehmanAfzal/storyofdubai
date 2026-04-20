@@ -155,43 +155,82 @@
   - ✅ CORS middleware active
   - ✅ Rate limiting active
 
+### Phase 1 Sprint 1: Database Models & Alembic (Prompt 15 Complete)
+
+- [x] Created backend/app/models/base.py (27 lines)
+  - UUIDMixin: UUID primary key with uuid.uuid4 default
+  - TimestampMixin: created_at, updated_at with server-side defaults (func.now())
+
+- [x] Created backend/app/models/venue.py (101 lines)
+  - Area: areas table with slug, lat/long, geo metadata
+  - Category: categories table with parent_id (hierarchy support)
+  - Venue: venues table with composite_score, area/category FKs, affiliate URLs
+
+- [x] Created backend/app/models/property.py (86 lines)
+  - Developer: developers table with project tracking
+  - Property: properties table with bedrooms, price_aed, price_bucket, developer FK
+
+- [x] Created backend/app/models/visa.py (73 lines)
+  - Nationality: nationalities with ISO codes
+  - VisaType: visa categories with processing info
+  - VisaNationalityGuide: junction table with unique(nationality_id, visa_type_id)
+
+- [x] Created backend/app/models/company.py (24 lines)
+  - Company: companies table with sector, freezone, employee_count_range
+
+- [x] Created backend/app/models/scrape_job.py (21 lines)
+  - ScrapeJob: scraper execution tracking with status (running/completed/failed), metadata JSON
+
+- [x] Updated backend/app/models/__init__.py
+  - Exports: Area, Category, Venue, Developer, Property, Nationality, VisaType, VisaNationalityGuide, Company, ScrapeJob
+
+- [x] Created Alembic migration (001_initial_schema_all_tables.py)
+  - All 10 models → 8 tables with proper indexes and constraints
+  - Composite indexes: (area_id, category_id, composite_score), (area_id, bedrooms, price_aed)
+  - Unique constraints: slug fields, google_place_id, nationality+visa_type pair
+
+- [x] Created backend/verify_schema.py
+  - Introspects all 10 models and prints schema
+  - Shows all columns, indexes, constraints without needing live DB
+  - **Output: 10 models, 116 columns, 30 indexes, 13 constraints ✅**
+
+- [x] **VERIFIED: All models load successfully**
+  - ✅ 10 SQLAlchemy models with UUID PKs and timestamps
+  - ✅ All relationships configured (FK with CASCADE/SET NULL)
+  - ✅ All indexes created for query optimization
+  - ✅ Soft-delete pattern (is_active) on all tables
+
 ## IN PROGRESS
-✓ Prompt 14 Complete: FastAPI Core + Config + Database + Health Endpoint
+✓ Prompt 15 Complete: SQLAlchemy Models + Alembic Migration Generated
 
 ---
 
 ## NEXT TASK
 
-→ **Prompt 15 (Phase 1 Sprint 1 Continued)**: Database Schema & SQLAlchemy Models
+→ **Prompt 16 (Phase 1 Sprint 1 Continued)**: Pydantic Schemas & API Response Envelope
 
 Priority order:
-1. **Create Alembic initial migration** (Prompt 14)
-   - `alembic init alembic` in backend/
-   - Create initial migration for core tables
-   - Tables: areas, categories, venues, properties, visa_guides, companies, developers, free_zones, scrape_jobs, ai_enrichments
-   - Implement soft-delete columns (is_active, created_at, updated_at)
-   - Create composite indexes: (area_id, category_id, composite_score), unique(slug)
-
-2. **Create SQLAlchemy models** (Prompt 15)
-   - BaseModel with id, created_at, updated_at, is_active
-   - Venue, Property, VissaGuide, Company, Area, Category, ScrapeJob, AIEnrichment
-   - All with proper relationships, indexes, constraints
-
-3. **Create Pydantic schemas** (Prompt 16)
-   - Request/response models for each entity
+1. **Create Pydantic schemas** (Prompt 16)
+   - Request/response models for each entity (base, create, update, response)
    - Standard response envelope (success, data, meta, error)
    - Pagination meta structure
 
-4. **Scaffold FastAPI routes** (Prompt 17)
-   - app/main.py with FastAPI app initialization
-   - app/api/v1/__init__.py router initialization
-   - Health check endpoint
-   - Test with FastAPI Swagger docs
+2. **Scaffold FastAPI routes** (Prompt 17)
+   - Venue routes: GET /venues/, GET /venues/{slug}/
+   - Property routes: GET /properties/, GET /properties/{slug}/
+   - Visa routes: GET /visa-guides/, GET /visa-guides/{slug}/
+   - Company routes: GET /companies/, GET /companies/{slug}/
+   - All routes return standard envelope + pagination
 
-5. **Integration tests** (Prompt 18)
+3. **Integration tests** (Prompt 18)
    - Test database connection
    - Test endpoint response format
-   - Test pagination
+   - Test pagination with filters
+
+4. **Admin routes** (Prompt 19)
+   - POST /scraper/run/ (trigger data collection)
+   - POST /scoring/recalculate/ (recompute composite scores)
+   - Protected by Bearer token auth
 
 ---
 
