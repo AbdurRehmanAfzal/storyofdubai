@@ -276,31 +276,93 @@
   - ✅ FastAPI app starts and routes are registered
   - ✅ Redis caching service integrated
 
+### Phase 1 Sprint 1: Celery, Scoring Engine & Scrapers (Prompt 17 Complete)
+
+- [x] Created backend/app/celery_app.py (52 lines)
+  - Celery app with Redis broker/backend (localhost:6379/1, /2)
+  - Task serialization: JSON for compatibility
+  - Task queues: scrapers, enrichment, default (routed by task prefix)
+  - Beat schedule (Dubai timezone UTC+4):
+    * 2 AM: scrape_google_places_all_areas
+    * 4 AM: run_scoring_engine_all
+    * 5 AM: run_ai_enrichment_pending
+    * 6 AM: trigger_nextjs_rebuild
+  - Worker configuration: task_acks_late, prefetch=1, track_started
+
+- [x] Created backend/app/pipeline/tasks.py (162 lines)
+  - Task stubs for all scraper/scoring/enrichment jobs
+  - scrape_google_places_all_areas() — daily scraper task
+  - scrape_google_places_single_area(area_slug, category_slug) — single area
+  - run_scoring_engine_all() — score all venues daily
+  - run_scoring_engine_area(area_slug) — score single area
+  - run_ai_enrichment_pending() — generate missing ai_summary
+  - trigger_nextjs_rebuild() — call Vercel webhook
+  - Each task creates/updates ScrapeJob record for tracking
+  - Structured logging via structlog for debugging
+
+- [x] Created backend/app/scoring/base.py (25 lines)
+  - BaseScorer abstract base class
+  - ScoreResult dataclass: entity_id, score, breakdown dict
+  - clamp() utility for value bounds checking
+  - MAX_SCORE = 100.0 constant
+
+- [x] Created backend/app/scoring/venue_scorer.py (125 lines)
+  - **Bayesian scoring algorithm** — deterministic, handles low review counts
+  - 5 scoring components (sum to 100 points):
+    * rating_quality (30pts): Bayesian average to handle bias
+    * review_volume (20pts): Log-scale, diminishing returns
+    * recency (20pts): Time decay, fresh data rewarded (7d=20, 180d=5, 365d=0)
+    * price_value (15pts): Mid-tier (tier 2) optimal (15pts > tier 1/3/4)
+    * completeness (15pts): Bonus for photos (5) + phone (5) + website (5)
+  - Deterministic: Same inputs always produce same score ✅
+  - Tested: Excellent venue=91.25, New venue w/ few reviews=67.67, Stale venue=47.84
+
+- [x] Created backend/app/scrapers/base.py (115 lines)
+  - BaseScraper abstract base class all scrapers inherit from
+  - Features:
+    * Rate limiting: DELAY=2s + JITTER=1s (random 0-1s)
+    * Auto-retry: MAX_RETRIES=3 with exponential backoff (1s, 2s, 4s)
+    * User-agent rotation: 5 different browsers, auto-cycled per request
+    * fetch_with_retry() async method with timeout=30s
+    * Statistics tracking: requests_made, errors, duration_seconds
+  - Abstract methods: scrape(), parse()
+  - Comprehensive docstrings and comments
+
+- [x] **VERIFIED: All components tested and working**
+  - ✅ Celery app loads, configuration correct, queues/routes defined
+  - ✅ Beat schedule shows all 4 daily tasks in Dubai timezone
+  - ✅ VenueScorer deterministic (91.25 → 91.25 same input)
+  - ✅ VenueScorer Bayesian: pulls 4.9-rating w/ 5 reviews down to 67 (vs 4.8 w/ 200=91)
+  - ✅ BaseScraper user-agent rotation, rate limit delay working
+  - ✅ All 5 files compile without syntax errors
+
 ## IN PROGRESS
-✓ Prompt 16 Complete: Pydantic Schemas + All API Routes + Redis Caching
+✓ Prompt 17 Complete: Celery App + Scoring Engine + BaseScraper
 
 ---
 
 ## NEXT TASK
 
-→ **Prompt 17 (Phase 1 Sprint 1 Continued)**: Integration Tests & Admin Routes
+→ **Prompt 18 (Phase 1 Sprint 1 Continued)**: Integration Tests & Admin Routes
 
 Priority:
-1. **Integration tests** (Prompt 17)
+1. **Integration tests** (Prompt 18)
    - Test all GET endpoints return correct response envelope
    - Test pagination (has_next, has_prev)
    - Test 404 errors for non-existent resources
    - Test Redis caching (verify cache hit after first request)
+   - Test VenueScorer produces consistent results
 
-2. **Admin routes** (Prompt 18)
-   - POST /scraper/run/ (trigger data collection) - Bearer token required
-   - POST /scoring/recalculate/ (recompute composite scores) - Bearer token required
+2. **Admin routes** (Prompt 19)
+   - POST /scraper/run/ (trigger scraper task) - Bearer token required
+   - POST /scoring/recalculate/ (trigger scoring task) - Bearer token required
    - GET /admin/scrape-jobs/ list recent scrape jobs
    - Protected by JWT authentication
 
-3. **Authentication** (Prompt 19)
+3. **Authentication** (Prompt 20)
    - JWT token generation and validation
    - Dependency for admin route protection
+   - Bearer token verification middleware
 
 ---
 
