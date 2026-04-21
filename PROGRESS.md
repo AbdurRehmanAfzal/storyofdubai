@@ -844,6 +844,76 @@ Area: Dubai Marina
 
 ---
 
+## Visa Seed Data — Phase 3c (Prompt 26 Continuation)
+
+✓ **Visa Seeder Complete**: 50 nationalities × 8 visa types = 400 visa guide pages
+
+**Deliverables**:
+
+- [x] Created backend/app/scrapers/visa_seeder.py (190 lines)
+  * seed_nationalities() — Populates 50 countries with ISO codes (PK, IN, GB, US, AU, etc.)
+  * seed_visa_types() — 8 visa categories: Tourist (30/60 days), Employment, Investor (3yr/10yr), Freelancer, Student, Retirement
+  * seed_visa_guides() — Cross-product generator: 50 × 8 = 400 junction records
+  * Slug generation: `{nationality}-{visa_type}` (e.g., `pakistani-golden-visa-10-years`)
+  * Duplicate detection: skips if (nationality_id, visa_type_id) already exists
+
+- [x] Created backend/run_visa_seed.py (45 lines)
+  * Standalone runner script using sync SessionLocal
+  * Formatted output showing nationality/visa type/guide counts
+  * Example URL patterns for page generation
+
+- [x] Fixed database schema misalignment
+  * Alembic migration 419d42fa0252: Added is_active to visa_nationality_guides
+  * Alembic migration e856349cb9e9: Added duration_days, cost_aed, processing_days, ai_guide to visa_types
+  * Alembic migration 785744028804: Added category to visa_types with server default
+  * Resolved DuplicateColumn errors (slug and is_active already existed in schema)
+
+**Database Verification**:
+```
+✅ Nationalities seeded: 50
+   - Pakistani, Indian, British, American, Australian, Canadian, German, French, Chinese, Russian, ...
+   - Egyptian, Filipino, Bangladeshi, Sri Lankan, Nepalese, Nigerian, South African, Kenyan, Turkish, ...
+   - Iranian, Jordanian, Lebanese, Saudi, Kuwaiti, Qatari, Bahraini, Omani, Moroccan, Algerian, ...
+   - Italian, Spanish, Dutch, Swedish, Norwegian, Danish, Swiss, Japanese, South Korean, Singaporean, ...
+   - Malaysian, Thai, Indonesian, Vietnamese, Brazilian, Mexican, Argentinian, Colombian, Ukrainian, Polish, Romanian
+
+✅ Visa types seeded: 8
+   1. Tourist Visa 30 Days (30 days, 350 AED, 3 days processing)
+   2. Tourist Visa 60 Days (60 days, 650 AED, 3 days processing)
+   3. Employment Visa (2 years, 1200 AED, 10 days processing)
+   4. Investor Visa 3 Years (1095 days, 3700 AED, 15 days processing)
+   5. Golden Visa 10 Years (3650 days, 4500 AED, 30 days processing)
+   6. Freelancer Visa (365 days, 7500 AED, 20 days processing)
+   7. Student Visa (365 days, 900 AED, 7 days processing)
+   8. Retirement Visa 5 Years (1825 days, 3500 AED, 20 days processing)
+
+✅ Visa nationality guides: 400
+   - Each combination: {nationality}_id × {visa_type}_id
+   - Example guide: pakistani-golden-visa-10-years
+   - Slug format ensures uniqueness
+   - All marked is_active=True for page generation
+```
+
+**Sample Record**:
+```
+ID: 0b5c364d-b027-4442-b2c8-280e5289c981
+Slug: pakistani-tourist-visa-30-days
+Nationality: Pakistani (ID: e9ee59de-bd7f-4eb5-ad03-78173892366c)
+Visa Type: Tourist Visa 30 Days (ID: 5954de07-d79d-4a28-baf7-391de48c9206)
+Is Active: True
+Created: 2026-04-21 14:05:07 UTC
+```
+
+**Git Commit**:
+- ✅ `feat: visa seed 50 nationalities 8 visa types 400 guide pages`
+  * Added visa_seeder.py, run_visa_seed.py
+  * Added 3 Alembic migrations for schema alignment
+  * Resolved schema mismatches from initial migration
+
+**Status**: ✅ READY FOR NEXT.JS STATIC PAGE GENERATION
+
+---
+
 ## NEXT TASK
 
 → **Phase 3b Step 1**: Build Next.js frontend property pages and verify static generation
