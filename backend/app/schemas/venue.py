@@ -80,13 +80,26 @@ class VenueCreate(VenueBase):
     pass
 
 
-class VenueResponse(VenueBase):
+class VenueResponse(BaseModel):
     id: str
-    google_rating: Optional[float] = None
+    name: str
+    slug: str
+    description: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    email: Optional[str] = None
+    rating: Optional[float] = None
+    review_count: int = 0
+    composite_score: float
+    google_place_id: Optional[str] = None
+    last_scraped_at: Optional[str] = None
     ai_summary: Optional[str] = None
     is_active: bool
     created_at: str
     updated_at: str
+    area: AreaSlugName
+    category: CategorySlugName
 
     class Config:
         from_attributes = True
@@ -97,12 +110,10 @@ class VenueListItem(BaseModel):
     name: str
     slug: str
     composite_score: float
-    google_rating: Optional[float] = None
+    rating: Optional[float] = None
     review_count: int
-    price_tier: Optional[int] = None
     area: AreaSlugName
     category: CategorySlugName
-    affiliate_url: Optional[str] = None
 
     class Config:
         from_attributes = True

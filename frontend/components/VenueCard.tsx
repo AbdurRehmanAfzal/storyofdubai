@@ -33,10 +33,10 @@ export default function VenueCard({ venue, rank }: VenueCardProps) {
               {venue.name}
             </Link>
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 flex-wrap">
-              {venue.google_rating && (
+              {venue.rating && (
                 <span className="flex items-center gap-1">
                   <span className="text-amber-400">★</span>
-                  {venue.google_rating.toFixed(1)}
+                  {venue.rating.toFixed(1)}
                 </span>
               )}
               {venue.review_count > 0 && (

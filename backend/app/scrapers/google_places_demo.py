@@ -251,12 +251,11 @@ class GooglePlacesScraper(BaseScraper):
         return {
             "name": name,
             "google_place_id": place_id,
-            "google_rating": float(rating) if rating else None,
+            "rating": float(rating) if rating else None,
             "review_count": int(rating_count) if rating_count else 0,
             "address": address,
             "phone": place.get("formatted_phone_number"),
             "website": place.get("website"),
-            "price_tier": place.get("price_level"),
             "raw_types": place.get("types", []),
             "last_scraped_at": datetime.utcnow().isoformat(),
         }
@@ -338,21 +337,29 @@ class GooglePlacesScraper(BaseScraper):
         try:
             google_place_id = venue_data["google_place_id"]
 
-            # Check if exists
+            # Check if exists by google_place_id (preferred) or slug+area
             stmt = select(Venue).where(
                 Venue.google_place_id == google_place_id
             )
             result = await self.session.execute(stmt)
             existing = result.scalar_one_or_none()
 
+            # If not found by place_id, try slug+area combo
+            if not existing:
+                slug = self._generate_slug(venue_data["name"], area.slug)
+                stmt = select(Venue).where(
+                    (Venue.slug == slug) & (Venue.area_id == area.id)
+                )
+                result = await self.session.execute(stmt)
+                existing = result.scalar_one_or_none()
+
             if existing:
                 # Update
-                existing.google_rating = venue_data.get("google_rating")
+                existing.rating = venue_data.get("rating")
                 existing.review_count = venue_data.get("review_count", 0)
                 existing.phone = venue_data.get("phone")
                 existing.website = venue_data.get("website")
                 existing.address = venue_data.get("address")
-                existing.price_tier = venue_data.get("price_tier")
                 existing.last_scraped_at = venue_data.get("last_scraped_at")
                 existing.is_active = True
                 self.session.add(existing)
@@ -374,12 +381,11 @@ class GooglePlacesScraper(BaseScraper):
                     area_id=area.id,
                     category_id=category.id,
                     google_place_id=google_place_id,
-                    google_rating=venue_data.get("google_rating"),
+                    rating=venue_data.get("rating"),
                     review_count=venue_data.get("review_count", 0),
                     phone=venue_data.get("phone"),
                     website=venue_data.get("website"),
                     address=venue_data.get("address"),
-                    price_tier=venue_data.get("price_tier"),
                     composite_score=0,  # Will be set by scoring engine
                     is_active=True,
                     last_scraped_at=venue_data.get("last_scraped_at"),
@@ -404,14 +410,17 @@ class GooglePlacesScraper(BaseScraper):
             raise
 
     def _generate_slug(self, name: str, area_slug: str) -> str:
-        """Generate URL-safe slug from venue name.
+        """Generate URL-safe slug from venue name + area.
+
+        Slugs are unique per area, so we don't include area in slug.
+        The database constraint ensures (slug, area_id) is unique.
 
         Args:
             name: Venue name (e.g., "Nobu Dubai Marina")
-            area_slug: Area slug (e.g., "dubai-marina")
+            area_slug: Area slug (e.g., "dubai-marina") - not used in slug itself
 
         Returns:
-            URL-safe slug (e.g., "nobu-dubai-marina")
+            URL-safe slug (e.g., "nobu")
         """
         import re
 

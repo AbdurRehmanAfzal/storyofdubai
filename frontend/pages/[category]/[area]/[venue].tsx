@@ -44,10 +44,10 @@ export default function VenuePage({ venue }: Props) {
           addressCountry: 'AE',
         }
       : undefined,
-    aggregateRating: venue.google_rating
+    aggregateRating: venue.rating
       ? {
           '@type': 'AggregateRating',
-          ratingValue: venue.google_rating,
+          ratingValue: venue.rating,
           reviewCount: venue.review_count,
           bestRating: 5,
           worstRating: 1,
@@ -60,7 +60,7 @@ export default function VenuePage({ venue }: Props) {
       title={`${venue.name} — ${venue.area.name} Dubai | Story of Dubai`}
       description={
         venue.ai_summary ||
-        `${venue.name} in ${venue.area.name}, Dubai. Rated ${venue.google_rating}/5 from ${venue.review_count} reviews.`
+        `${venue.name} in ${venue.area.name}, Dubai. Rated ${venue.rating}/5 from ${venue.review_count} reviews.`
       }
       canonical={canonical}
       jsonLd={[localBusinessSchema, breadcrumbSchema]}
@@ -90,10 +90,10 @@ export default function VenuePage({ venue }: Props) {
 
           {/* Stats grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-            {venue.google_rating && (
+            {venue.rating && (
               <div className="bg-gray-50 rounded-lg p-3 text-center">
                 <div className="text-xl font-semibold text-amber-500">
-                  {venue.google_rating.toFixed(1)}
+                  {venue.rating.toFixed(1)}
                 </div>
                 <div className="text-xs text-gray-500 mt-0.5">Google rating</div>
               </div>

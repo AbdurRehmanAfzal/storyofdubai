@@ -15,7 +15,7 @@ router = APIRouter(prefix="/page-paths", tags=["page-paths"])
 
 @router.get("/venue-area/", response_model=APIResponse[List[VenueAreaPath]])
 async def get_venue_page_paths(db: AsyncSession = Depends(get_db)):
-    """Get all area×category combos with at least 5 active venues (for Next.js getStaticPaths)"""
+    """Get all unique area×category combos with at least 1 active venue (for Next.js getStaticPaths)"""
     cache_key = "page_paths:venues"
 
     # Try cache (6 hours for page generation)
@@ -23,24 +23,24 @@ async def get_venue_page_paths(db: AsyncSession = Depends(get_db)):
     if cached:
         return APIResponse.ok(cached)
 
-    # Query: Get area/category pairs with at least 5 venues
+    # Query: Get unique area/category pairs with active venues
     result = await db.execute(
         select(
             Area.slug.label("area_slug"),
             Category.slug.label("category_slug"),
-            Venue.slug,
         )
+        .select_from(Venue)
+        .distinct()
         .join(Area)
         .join(Category)
         .where(Venue.is_active == True)
-        .order_by(Area.slug, Category.slug, Venue.composite_score.desc())
+        .order_by(Area.slug, Category.slug)
     )
 
     paths = [
         VenueAreaPath(
             category_slug=row[1],
             area_slug=row[0],
-            slug=row[2],
         )
         for row in result.fetchall()
     ]

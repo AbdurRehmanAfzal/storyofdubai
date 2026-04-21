@@ -4,7 +4,6 @@ from pydantic import BaseModel
 class VenueAreaPath(BaseModel):
     category_slug: str
     area_slug: str
-    slug: str
 
 
 class PropertyPath(BaseModel):

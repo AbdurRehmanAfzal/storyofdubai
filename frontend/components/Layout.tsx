@@ -70,7 +70,7 @@ export default function Layout({
         {/* Footer */}
         <footer className="border-t border-gray-100 mt-16 py-8">
           <div className="max-w-6xl mx-auto px-4 text-sm text-gray-500 text-center">
-            <p>© {new Date().getFullYear()} Story of Dubai. Data updated daily.</p>
+            <p>© 2026 Story of Dubai. Data updated daily.</p>
           </div>
         </footer>
       </div>

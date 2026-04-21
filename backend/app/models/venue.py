@@ -2,6 +2,7 @@ from sqlalchemy import String, Float, Integer, Boolean, Text, Index, UniqueConst
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from app.models.base import UUIDMixin, TimestampMixin
+from uuid import UUID
 
 
 class Area(Base, UUIDMixin, TimestampMixin):
@@ -25,7 +26,7 @@ class Category(Base, UUIDMixin, TimestampMixin):
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
-    parent_id: Mapped[str] = mapped_column(String(36), ForeignKey("categories.id"), nullable=True)
+    parent_id: Mapped[UUID | None] = mapped_column(ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
     display_order: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
 
@@ -41,21 +42,22 @@ class Venue(Base, UUIDMixin, TimestampMixin):
     )
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    area_id: Mapped[str] = mapped_column(String(36), ForeignKey("areas.id", ondelete="CASCADE"), nullable=False)
-    category_id: Mapped[str] = mapped_column(String(36), ForeignKey("categories.id", ondelete="CASCADE"), nullable=False)
-    google_place_id: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
-    google_rating: Mapped[float] = mapped_column(Float, nullable=True)
-    review_count: Mapped[int] = mapped_column(Integer, default=0)
-    price_tier: Mapped[int] = mapped_column(Integer, nullable=True)
-    composite_score: Mapped[float] = mapped_column(Float, default=0, index=True)
-    ai_summary: Mapped[str] = mapped_column(Text, nullable=True)
-    affiliate_url: Mapped[str] = mapped_column(String(500), nullable=True)
-    phone: Mapped[str] = mapped_column(String(20), nullable=True)
-    address: Mapped[str] = mapped_column(Text, nullable=True)
-    website: Mapped[str] = mapped_column(String(500), nullable=True)
+    slug: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    address: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    website: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    email: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    rating: Mapped[float | None] = mapped_column(Float, nullable=True)
+    review_count: Mapped[int | None] = mapped_column(Integer, default=0, nullable=True)
+    composite_score: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+    area_id: Mapped[UUID] = mapped_column(ForeignKey("areas.id", ondelete="CASCADE"), nullable=False)
+    category_id: Mapped[UUID] = mapped_column(ForeignKey("categories.id", ondelete="CASCADE"), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
-    last_scraped_at: Mapped[str] = mapped_column(String(30), nullable=True)
+    last_scraped_at: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    affiliate_url_thefork: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    affiliate_url_booking: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    google_place_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     area = relationship("Area", back_populates="venues")
     category = relationship("Category", back_populates="venues")

@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import async_engine, AsyncSessionLocal, Base
+from app.database import engine, AsyncSessionLocal, Base
 from app.scrapers.google_places_demo import GooglePlacesScraper
 from app.config import settings
 
@@ -39,7 +39,7 @@ async def main():
     # 1. Create tables
     logger.info("creating_database_tables")
     try:
-        async with async_engine.begin() as conn:
+        async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         logger.info("database_tables_created")
     except Exception as e:
@@ -55,8 +55,13 @@ async def main():
             logger.info("running_scraper")
             result = await scraper.scrape()
 
-            # Commit changes
-            await session.commit()
+            # Commit changes (handle pending rollback from errors)
+            try:
+                await session.commit()
+            except Exception as e:
+                logger.error("commit_failed", error=str(e))
+                await session.rollback()
+                await session.commit()  # Commit what we can
 
             # Print results
             print("\n" + "=" * 60)

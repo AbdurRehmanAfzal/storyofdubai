@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
+from sqlalchemy.orm import joinedload
 from app.database import get_db
 from app.models import Venue, Area, Category
 from app.schemas.base import APIResponse, PaginationMeta
@@ -36,8 +37,8 @@ async def list_venues(
     if cached:
         return APIResponse.ok(cached["data"], cached["meta"])
 
-    # Build query
-    query = select(Venue).where(Venue.is_active == True)
+    # Build base query with eager loading to prevent N+1
+    query = select(Venue).options(joinedload(Venue.area), joinedload(Venue.category)).where(Venue.is_active == True)
 
     if area:
         query = query.join(Area).where(Area.slug == area)
@@ -46,8 +47,16 @@ async def list_venues(
     if min_score is not None:
         query = query.where(Venue.composite_score >= min_score)
 
-    # Get total count before pagination
-    count_result = await db.execute(select(func.count(Venue.id)).select_from(query))
+    # Get total count
+    count_query = select(func.count(Venue.id)).where(Venue.is_active == True)
+    if area:
+        count_query = count_query.join(Area).where(Area.slug == area)
+    if category:
+        count_query = count_query.join(Category).where(Category.slug == category)
+    if min_score is not None:
+        count_query = count_query.where(Venue.composite_score >= min_score)
+
+    count_result = await db.execute(count_query)
     total = count_result.scalar() or 0
 
     # Ordering
@@ -64,7 +73,7 @@ async def list_venues(
 
     # Fetch results
     result = await db.execute(query)
-    venues = result.scalars().all()
+    venues = result.unique().scalars().all()
 
     # Format response
     venue_list = [
@@ -73,12 +82,10 @@ async def list_venues(
             name=v.name,
             slug=v.slug,
             composite_score=v.composite_score,
-            google_rating=v.google_rating,
+            rating=v.rating,
             review_count=v.review_count,
-            price_tier=v.price_tier,
             area=AreaSlugName(slug=v.area.slug, name=v.area.name),
             category=CategorySlugName(slug=v.category.slug, name=v.category.name),
-            affiliate_url=v.affiliate_url,
         )
         for v in venues
     ]
@@ -103,7 +110,7 @@ async def list_venues(
 
 @router.get("/{slug}/", response_model=APIResponse[VenueResponse])
 async def get_venue(slug: str, db: AsyncSession = Depends(get_db)):
-    """Get single venue by slug"""
+    """Get single venue by slug with area and category"""
     cache_key = f"venue:{slug}"
 
     # Try cache
@@ -111,8 +118,10 @@ async def get_venue(slug: str, db: AsyncSession = Depends(get_db)):
     if cached:
         return APIResponse.ok(cached)
 
-    # Query
-    result = await db.execute(select(Venue).where(Venue.slug == slug))
+    # Query venue
+    result = await db.execute(
+        select(Venue).where(Venue.slug == slug)
+    )
     venue = result.scalar_one_or_none()
 
     if not venue:
@@ -120,12 +129,21 @@ async def get_venue(slug: str, db: AsyncSession = Depends(get_db)):
             "VENUE_NOT_FOUND", f"Venue with slug '{slug}' not found"
         )
 
+    # Query area and category relationships explicitly
+    area_result = await db.execute(
+        select(Area).where(Area.id == venue.area_id)
+    )
+    area_obj = area_result.scalar_one()
+
+    category_result = await db.execute(
+        select(Category).where(Category.id == venue.category_id)
+    )
+    category_obj = category_result.scalar_one()
+
     response = VenueResponse(
         id=str(venue.id),
         name=venue.name,
         slug=venue.slug,
-        area_id=str(venue.area_id),
-        category_id=str(venue.category_id),
         description=venue.description,
         address=venue.address,
         phone=venue.phone,
@@ -134,18 +152,17 @@ async def get_venue(slug: str, db: AsyncSession = Depends(get_db)):
         rating=venue.rating,
         review_count=venue.review_count,
         composite_score=venue.composite_score,
-        price_tier=venue.price_tier,
         google_place_id=venue.google_place_id,
-        google_rating=venue.google_rating,
-        ai_summary=venue.ai_summary,
-        affiliate_url=venue.affiliate_url,
         is_active=venue.is_active,
         created_at=venue.created_at.isoformat(),
         updated_at=venue.updated_at.isoformat(),
+        area=AreaSlugName(slug=area_obj.slug, name=area_obj.name),
+        category=CategorySlugName(slug=category_obj.slug, name=category_obj.name),
     )
 
-    # Cache
-    await cache.set(cache_key, response.model_dump(), ttl=settings.CACHE_TTL_VENUE)
+    # TODO: Cache the response with complex objects serialized properly
+    # For now, skip caching to avoid losing relationship data
+    # await cache.set(cache_key, response.model_dump(), ttl=settings.CACHE_TTL_VENUE)
 
     return APIResponse.ok(response)
 
@@ -168,6 +185,7 @@ async def get_venues_for_page(
     # Query top 20
     result = await db.execute(
         select(Venue)
+        .options(joinedload(Venue.area), joinedload(Venue.category))
         .join(Area)
         .join(Category)
         .where(
@@ -180,7 +198,7 @@ async def get_venues_for_page(
         .order_by(Venue.composite_score.desc())
         .limit(20)
     )
-    venues = result.scalars().all()
+    venues = result.unique().scalars().all()
 
     venue_list = [
         VenueListItem(
@@ -188,12 +206,10 @@ async def get_venues_for_page(
             name=v.name,
             slug=v.slug,
             composite_score=v.composite_score,
-            google_rating=v.google_rating,
+            rating=v.rating,
             review_count=v.review_count,
-            price_tier=v.price_tier,
             area=AreaSlugName(slug=v.area.slug, name=v.area.name),
             category=CategorySlugName(slug=v.category.slug, name=v.category.name),
-            affiliate_url=v.affiliate_url,
         )
         for v in venues
     ]
@@ -205,4 +221,4 @@ async def get_venues_for_page(
         ttl=settings.CACHE_TTL_PAGE_PATHS,
     )
 
-    return APIResponse.ok(venue_list)
+    return APIResponse.ok(venue_list, None)

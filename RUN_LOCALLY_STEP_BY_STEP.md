@@ -312,7 +312,8 @@ npm run dev
 
 # You should see:
 # ▲ Next.js 14.x
-# - Local:        http://localhost:3000
+# - Local:        http://localhost
+:3000
 # - Environments: .env.local
 # 
 # ✓ Ready in Xs
