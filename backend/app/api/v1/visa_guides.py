@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
+from sqlalchemy.orm import joinedload
 from app.database import get_db
 from app.models import VisaNationalityGuide, Nationality, VisaType
 from app.schemas.base import APIResponse, PaginationMeta
@@ -8,8 +9,37 @@ from app.schemas.visa import VisaNationalityGuideResponse
 from app.services.cache import cache
 from app.config import settings
 from typing import List, Optional
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/visa-guides", tags=["visa-guides"])
+
+# Enhanced response schemas
+class NationalityDetail(BaseModel):
+    slug: str
+    name: str
+    iso_code: str
+
+class VisaTypeDetail(BaseModel):
+    slug: str
+    name: str
+    category: str
+    duration_days: Optional[int] = None
+    cost_aed: Optional[int] = None
+    processing_days: Optional[int] = None
+    ai_guide: Optional[str] = None
+
+class VisaNationalityGuideDetailResponse(BaseModel):
+    id: str
+    nationality: NationalityDetail
+    visa_type: VisaTypeDetail
+    requirements: Optional[str] = None
+    ai_guide: Optional[str] = None
+    created_at: str
+    updated_at: str
+
+class VisaGuidePath(BaseModel):
+    nationality_slug: str
+    visa_type_slug: str
 
 
 @router.get("/", response_model=APIResponse[List[VisaNationalityGuideResponse]])
@@ -53,7 +83,7 @@ async def list_visa_guides(
             id=str(g.id),
             nationality_id=str(g.nationality_id),
             visa_type_id=str(g.visa_type_id),
-            specific_requirements=g.specific_requirements,
+            requirements=g.requirements,
             ai_guide=g.ai_guide,
             created_at=g.created_at.isoformat(),
             updated_at=g.updated_at.isoformat(),
@@ -81,12 +111,12 @@ async def list_visa_guides(
 
 @router.get(
     "/{nationality_slug}/{visa_type_slug}/",
-    response_model=APIResponse[VisaNationalityGuideResponse],
+    response_model=APIResponse[VisaNationalityGuideDetailResponse],
 )
 async def get_visa_guide(
     nationality_slug: str, visa_type_slug: str, db: AsyncSession = Depends(get_db)
 ):
-    """Get specific visa guide by nationality and type"""
+    """Get specific visa guide by nationality and type with nested details"""
     cache_key = f"visa_guide:{nationality_slug}:{visa_type_slug}"
 
     # Try cache
@@ -94,11 +124,11 @@ async def get_visa_guide(
     if cached:
         return APIResponse.ok(cached)
 
-    # Query
+    # Query with explicit joins
     result = await db.execute(
-        select(VisaNationalityGuide)
-        .join(Nationality)
-        .join(VisaType)
+        select(VisaNationalityGuide, Nationality, VisaType)
+        .join(Nationality, VisaNationalityGuide.nationality_id == Nationality.id)
+        .join(VisaType, VisaNationalityGuide.visa_type_id == VisaType.id)
         .where(
             and_(
                 Nationality.slug == nationality_slug,
@@ -106,19 +136,33 @@ async def get_visa_guide(
             )
         )
     )
-    guide = result.scalar_one_or_none()
+    row = result.one_or_none()
 
-    if not guide:
+    if not row:
         return APIResponse.fail(
             "VISA_GUIDE_NOT_FOUND",
             f"Visa guide for {nationality_slug}/{visa_type_slug} not found",
         )
 
-    response = VisaNationalityGuideResponse(
+    guide, nationality, visa_type = row
+
+    response = VisaNationalityGuideDetailResponse(
         id=str(guide.id),
-        nationality_id=str(guide.nationality_id),
-        visa_type_id=str(guide.visa_type_id),
-        specific_requirements=guide.specific_requirements,
+        nationality={
+            "slug": nationality.slug,
+            "name": nationality.name,
+            "iso_code": nationality.iso_code,
+        },
+        visa_type={
+            "slug": visa_type.slug,
+            "name": visa_type.name,
+            "category": visa_type.category,
+            "duration_days": visa_type.duration_days,
+            "cost_aed": visa_type.cost_aed,
+            "processing_days": visa_type.processing_days,
+            "ai_guide": visa_type.ai_guide,
+        },
+        requirements=guide.requirements,
         ai_guide=guide.ai_guide,
         created_at=guide.created_at.isoformat(),
         updated_at=guide.updated_at.isoformat(),
@@ -128,3 +172,36 @@ async def get_visa_guide(
     await cache.set(cache_key, response.model_dump(), ttl=settings.CACHE_TTL_VISA)
 
     return APIResponse.ok(response)
+
+
+@router.get("/page-paths/", response_model=APIResponse[List[VisaGuidePath]])
+async def get_visa_guide_page_paths(db: AsyncSession = Depends(get_db)):
+    """Get all visa guide page paths for getStaticPaths (Next.js)"""
+    cache_key = "visa_guide_page_paths:v1"
+
+    # Try cache (6 hours)
+    cached = await cache.get(cache_key)
+    if cached:
+        return APIResponse.ok(cached)
+
+    # Get all active visa guides with nationality and visa type info
+    result = await db.execute(
+        select(VisaNationalityGuide, Nationality, VisaType)
+        .join(Nationality, VisaNationalityGuide.nationality_id == Nationality.id)
+        .join(VisaType, VisaNationalityGuide.visa_type_id == VisaType.id)
+        .where(VisaNationalityGuide.is_active == True)
+    )
+
+    rows = result.all()
+    paths = [
+        VisaGuidePath(
+            nationality_slug=nationality.slug,
+            visa_type_slug=visa_type.slug,
+        )
+        for guide, nationality, visa_type in rows
+    ]
+
+    # Cache for 6 hours (page generation cache)
+    await cache.set(cache_key, [p.model_dump() for p in paths], ttl=21600)
+
+    return APIResponse.ok(paths)

@@ -41,7 +41,7 @@ class VisaTypeResponse(VisaTypeBase):
 class VisaNationalityGuideBase(BaseModel):
     nationality_id: str
     visa_type_id: str
-    specific_requirements: Optional[str] = None
+    requirements: Optional[str] = None
     ai_guide: Optional[str] = None
 
 

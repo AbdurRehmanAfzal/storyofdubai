@@ -150,13 +150,13 @@ export default function VisaGuidePage({ guide }: Props) {
       )}
 
       {/* Specific requirements if available */}
-      {guide.specific_requirements && (
+      {guide.requirements && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-3">
             Additional Requirements
           </h2>
           <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {guide.specific_requirements}
+            {guide.requirements}
           </p>
         </div>
       )}
@@ -186,8 +186,8 @@ export default function VisaGuidePage({ guide }: Props) {
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
     const res = await getVisaGuidePaths()
-    const paths = (res.data || []).map(({ nationality_slug, visa_type_slug }) => ({
-      params: { nationality: nationality_slug, type: visa_type_slug },
+    const paths = (res.data || []).map(({ nationality_slug: nslug, visa_type_slug: vslug }) => ({
+      params: { nationality: nslug, type: vslug },
     }))
     return { paths, fallback: 'blocking' }
   } catch {
