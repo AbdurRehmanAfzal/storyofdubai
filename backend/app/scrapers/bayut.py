@@ -69,15 +69,20 @@ class BayutScraper(BaseScraper):
         try:
             logger.info("bayut_fetching_area", area=area_slug, url=url)
             await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            await page.wait_for_selector('[class*="listing"]', timeout=10000)
-            await asyncio.sleep(random.uniform(2, 4))
 
-            # Try different selectors for property cards
-            listings = await page.query_selector_all('article[class*="property"]')
+            # Random delay to mimic human reading time
+            await asyncio.sleep(random.uniform(3, 5))
+
+            # Try different selectors for property cards - use broader selectors
+            listings = await page.query_selector_all('a[href*="/property/"]')
+
             if not listings:
-                listings = await page.query_selector_all('[data-testid="property-card"]')
+                # Fallback: try other common selectors
+                listings = await page.query_selector_all('[href*="/property/"]')
+
             if not listings:
-                listings = await page.query_selector_all('[class*="card"]')
+                # Even broader fallback
+                listings = await page.query_selector_all('a[href*="property"]')
 
             self.properties_found += len(listings)
             logger.info("bayut_listings_found", area=area_slug, count=len(listings))
@@ -88,6 +93,12 @@ class BayutScraper(BaseScraper):
                     if parsed:
                         results.append(parsed)
                         self.properties_parsed += 1
+
+                    # Random scroll to simulate human browsing
+                    if idx % 5 == 0:
+                        await page.evaluate("window.scrollBy(0, 300)")
+                        await asyncio.sleep(random.uniform(0.5, 1.5))
+
                 except Exception as e:
                     logger.warning("bayut_parse_error", area=area_slug, index=idx, error=str(e))
                     self.errors.append(str(e))
@@ -100,39 +111,47 @@ class BayutScraper(BaseScraper):
         return results
 
     async def parse_listing(self, listing, area_slug: str) -> dict | None:
-        """Parse a single property listing from HTML element."""
+        """Parse a single property listing from HTML link element."""
         try:
-            # Title
-            title_el = await listing.query_selector("h2, [class*='title']")
-            title = (await title_el.inner_text()).strip() if title_el else None
+            # The listing is an <a> tag href pointing to /property/...
+            href = await listing.get_attribute("href")
+            if not href or "/property/" not in href:
+                return None
+
+            # Get all text content from the link
+            full_text = (await listing.inner_text()).strip()
+            if not full_text:
+                return None
+
+            # Try to extract title - first line usually
+            lines = full_text.split("\n")
+            title = lines[0].strip() if lines else None
             if not title:
                 return None
 
-            # Price
-            price_el = await listing.query_selector("[class*='price']")
-            price_text = (await price_el.inner_text()).strip() if price_el else "0"
-            price_aed = int(re.sub(r"[^\d]", "", price_text) or 0)
-            if price_aed == 0:
+            # Look for price in the text (usually contains "AED" or digits followed by pattern)
+            price_match = re.search(r"(AED\s*)?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)", full_text)
+            if not price_match:
                 return None
 
-            # Bedrooms
-            bed_el = await listing.query_selector("[aria-label*='bed'], [class*='bed']")
-            bed_text = (await bed_el.inner_text()).strip() if bed_el else "1"
-            bedrooms = int(re.sub(r"[^\d]", "", bed_text) or 1)
+            price_text = price_match.group(2) if price_match else "0"
+            price_aed = int(re.sub(r"[^\d]", "", price_text) or 0)
+            if price_aed == 0 or price_aed < 1000:  # Unrealistic price
+                return None
 
-            # Bathrooms
-            bath_el = await listing.query_selector("[aria-label*='bath'], [class*='bath']")
-            bath_text = (await bath_el.inner_text()).strip() if bath_el else "1"
-            bathrooms = int(re.sub(r"[^\d]", "", bath_text) or 1)
+            # Look for bedroom info - usually a number followed by "b" or "BR" or "bed"
+            bed_match = re.search(r"(\d+)\s*(?:b|br|bed)", full_text, re.IGNORECASE)
+            bedrooms = int(bed_match.group(1)) if bed_match else 1
 
-            # Size
-            size_el = await listing.query_selector("[aria-label*='sqft'], [class*='area']")
-            size_text = (await size_el.inner_text()).strip() if size_el else ""
-            size_sqft = float(re.sub(r"[^\d.]", "", size_text) or 0) or None
+            # Look for bathroom info
+            bath_match = re.search(r"(\d+)\s*(?:ba|bath)", full_text, re.IGNORECASE)
+            bathrooms = int(bath_match.group(1)) if bath_match else 1
 
-            # Link (for affiliate URL)
-            link_el = await listing.query_selector("a[href*='/property/']")
-            href = await link_el.get_attribute("href") if link_el else ""
+            # Look for sqft/area info
+            size_match = re.search(r"([\d.]+)\s*(?:sqft|sq\.?ft|sqm|m2)", full_text, re.IGNORECASE)
+            size_sqft = float(size_match.group(1)) if size_match else None
+
+            # Build affiliate URL from href
             affiliate_url = (
                 f"https://www.bayut.com{href}" if href and href.startswith("/") else href
             )
@@ -152,7 +171,7 @@ class BayutScraper(BaseScraper):
                 "affiliate_url": affiliate_url or "",
             }
         except Exception as e:
-            logger.warning("bayut_parse_listing_error", error=str(e))
+            logger.warning("bayut_parse_listing_error", error=str(e), area=area_slug)
             return None
 
     async def scrape(
@@ -164,35 +183,50 @@ class BayutScraper(BaseScraper):
 
         async with async_playwright() as p:
             browser: Browser = await p.chromium.launch(
-                headless=True,
+                headless=False,  # Headed mode - less suspicious to detection systems
                 args=[
                     "--no-sandbox",
                     "--disable-dev-shm-usage",
                     "--disable-blink-features=AutomationControlled",
+                    "--disable-backgrounding-occluded-windows",
+                    "--disable-breakpad",
+                    "--disable-client-side-phishing-detection",
+                    "--disable-component-extensions-with-background-pages",
+                    "--disable-default-apps",
+                    "--disable-extensions",
+                    "--disable-sync",
                 ],
             )
 
             context = await browser.new_context(
-                viewport={"width": 1440, "height": 900},
+                viewport={"width": 1280, "height": 720},
                 user_agent=self.get_user_agent(),
                 locale="en-US",
-            )
-
-            # Mask automation signals
-            await context.add_init_script(
-                """
-                Object.defineProperty(navigator, 'webdriver', { get: () => false });
-            """
+                timezone_id="Asia/Dubai",  # Match Bayut's region
             )
 
             page = await context.new_page()
+
+            # Masking without stealth plugin (stealth plugin itself triggers detection)
+            await context.add_init_script(
+                """
+                Object.defineProperty(navigator, 'webdriver', { get: () => false });
+                Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
+                Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
+                delete navigator.__proto__.webdriver;
+            """
+            )
 
             for area_slug in target_areas:
                 logger.info("bayut_scraping_area", area=area_slug)
                 results = await self.scrape_area(area_slug, page, limit_per_area)
                 all_results.extend(results)
                 self.requests_made += 1
-                await self.rate_limit_delay()
+
+                # Random delay to mimic human behavior
+                delay = random.uniform(3.0, 6.0)
+                logger.info("rate_limit_delay", seconds=delay)
+                await asyncio.sleep(delay)
 
             await browser.close()
 
