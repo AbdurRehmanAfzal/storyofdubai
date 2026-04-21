@@ -32,10 +32,10 @@ export default function ApartmentsPage({ areas }: Props) {
 
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-3xl font-luxury font-semibold text-b1-darker mb-2">
           Apartments in Dubai
         </h1>
-        <p className="text-gray-600 leading-relaxed max-w-2xl">
+        <p className="text-b1-dark leading-relaxed max-w-2xl">
           Browse apartments and properties for rent and sale across Dubai
           neighborhoods, ranked by price, amenities, and community.
         </p>
@@ -43,7 +43,7 @@ export default function ApartmentsPage({ areas }: Props) {
 
       {/* Browse by area */}
       <section>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
+        <h2 className="text-lg font-luxury font-medium text-b1-darker mb-4">
           Browse by Area
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -51,13 +51,13 @@ export default function ApartmentsPage({ areas }: Props) {
             <Link
               key={area.slug}
               href={`/apartments/${area.slug}/`}
-              className="group p-4 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+              className="group p-4 border border-b1-light rounded-xs hover:border-b1-light hover:shadow-sm transition-all bg-white"
             >
-              <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+              <div className="font-luxury font-medium text-b1-darker group-hover:text-b1-gold transition-colors">
                 {area.name}
               </div>
               {area.description && (
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                <p className="text-sm text-b1-dark mt-1 line-clamp-2">
                   {area.description}
                 </p>
               )}

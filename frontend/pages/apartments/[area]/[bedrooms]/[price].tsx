@@ -72,14 +72,14 @@ export default function PropertyFilterPage({
 
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-2xl font-luxury font-semibold text-b1-darker mb-2">
           {bedrooms}-Bedroom Apartments in {area}, Dubai
         </h1>
-        <p className="text-gray-600 leading-relaxed max-w-2xl mb-3">
+        <p className="text-b1-dark leading-relaxed max-w-2xl mb-3">
           {bedrooms}-bedroom apartment rentals in {area} {priceLabel.toLowerCase()}.
           Ranked by quality score, price value, and availability.
         </p>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-b1-light">
           {properties.length} properties ranked · Last updated {lastUpdated}
         </p>
       </div>
@@ -93,10 +93,10 @@ export default function PropertyFilterPage({
           {properties.map((property, i) => (
             <article
               key={property.id}
-              className="flex items-start gap-4 p-4 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+              className="flex items-start gap-4 p-4 border border-b1-light rounded-xs hover:border-b1-light hover:shadow-sm transition-all bg-white"
             >
               {/* Rank */}
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center text-sm font-medium text-gray-500">
+              <div className="flex-shrink-0 w-8 h-8 rounded-xs bg-b1-light border border-b1-light flex items-center justify-center text-sm font-medium text-b1-dark">
                 {i + 1}
               </div>
 
@@ -108,21 +108,21 @@ export default function PropertyFilterPage({
                       href={`/apartments/${area
                         .toLowerCase()
                         .replace(/ /g, '-')}/${bedrooms}-bedroom/${priceRange}/${property.slug}/`}
-                      className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                      className="font-luxury font-medium text-b1-darker hover:text-b1-gold transition-colors"
                     >
                       {property.title}
                     </Link>
-                    <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 flex-wrap">
-                      <span className="font-semibold text-gray-900">
+                    <div className="flex items-center gap-2 mt-1 text-sm text-b1-dark flex-wrap">
+                      <span className="font-semibold text-b1-darker">
                         AED {property.price_aed.toLocaleString()}
                       </span>
                       {property.developer && (
-                        <span className="text-gray-400">
+                        <span className="text-b1-light">
                           by {property.developer.name}
                         </span>
                       )}
                       {property.size_sqft && (
-                        <span className="text-gray-400">
+                        <span className="text-b1-light">
                           {property.size_sqft.toLocaleString()} sqft
                         </span>
                       )}
@@ -137,7 +137,7 @@ export default function PropertyFilterPage({
                     href={property.affiliate_url}
                     target="_blank"
                     rel="noopener noreferrer sponsored"
-                    className="mt-2 inline-block text-xs text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg px-3 py-1 hover:bg-blue-50 transition-colors"
+                    className="mt-2 inline-block text-xs text-b1-gold hover:text-b1-gold-hover border border-b1-light rounded-xs px-3 py-1 hover:bg-gray-50 transition-colors"
                   >
                     View on Bayut →
                   </a>
@@ -147,7 +147,7 @@ export default function PropertyFilterPage({
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-b1-light">
           <p>No {bedrooms}-bedroom apartments found in {area} {priceLabel.toLowerCase()}.</p>
           <p className="text-sm mt-1">Try different filters or check back soon.</p>
         </div>
@@ -157,8 +157,8 @@ export default function PropertyFilterPage({
       <EmailCapture context={`${bedrooms}-bedroom apartments in ${area}`} />
 
       {/* Related properties links */}
-      <div className="mt-8 pt-8 border-t border-gray-100">
-        <h2 className="text-sm font-medium text-gray-500 mb-3">
+      <div className="mt-8 pt-8 border-t border-b1-light">
+        <h2 className="text-sm font-medium text-b1-dark mb-3">
           Other apartment options in {area}
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -166,10 +166,10 @@ export default function PropertyFilterPage({
             <a
               key={br}
               href={`/apartments/${area.toLowerCase().replace(/ /g, '-')}/${br}-bedroom/${priceRange}/`}
-              className={`text-sm border rounded-lg px-3 py-1 transition-colors ${
+              className={`text-sm border rounded-xs px-3 py-1 transition-colors ${
                 br === bedrooms
-                  ? 'bg-blue-50 border-blue-200 text-blue-800'
-                  : 'text-blue-600 hover:text-blue-700 border-blue-100 hover:bg-blue-50'
+                  ? 'bg-b1-gold border-b1-gold text-white'
+                  : 'text-b1-gold hover:text-b1-gold-hover border-b1-light hover:bg-gray-50'
               }`}
             >
               {br}BR

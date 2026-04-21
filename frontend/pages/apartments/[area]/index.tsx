@@ -44,10 +44,10 @@ export default function ApartmentsAreaPage({
 
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-3xl font-luxury font-semibold text-b1-darker mb-2">
           Apartments in {area.name}
         </h1>
-        <p className="text-gray-600 leading-relaxed max-w-2xl">
+        <p className="text-b1-dark leading-relaxed max-w-2xl">
           Browse available apartments for rent and sale in {area.name}. Filter
           by number of bedrooms and price range to find your ideal property.
         </p>
@@ -55,7 +55,7 @@ export default function ApartmentsAreaPage({
 
       {/* Filter by bedrooms */}
       <section className="mb-12">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
+        <h2 className="text-lg font-luxury font-medium text-b1-darker mb-4">
           By Bedroom Count
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -63,12 +63,12 @@ export default function ApartmentsAreaPage({
             <Link
               key={bedrooms}
               href={`/apartments/${area.slug}/${bedrooms}/under-50k/`}
-              className="group p-4 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+              className="group p-4 border border-b1-light rounded-xs hover:border-b1-light hover:shadow-sm transition-all bg-white"
             >
-              <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+              <div className="font-luxury font-medium text-b1-darker group-hover:text-b1-gold transition-colors">
                 {bedrooms} Bedroom{bedrooms !== 1 ? 's' : ''}
               </div>
-              <p className="text-sm text-gray-500 mt-1">View properties</p>
+              <p className="text-sm text-b1-dark mt-1">View properties</p>
             </Link>
           ))}
         </div>
@@ -76,7 +76,7 @@ export default function ApartmentsAreaPage({
 
       {/* Filter by price */}
       <section className="mb-12">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
+        <h2 className="text-lg font-luxury font-medium text-b1-darker mb-4">
           By Price Range
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -84,12 +84,12 @@ export default function ApartmentsAreaPage({
             <Link
               key={bucket}
               href={`/apartments/${area.slug}/1/${bucket}/`}
-              className="group p-4 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+              className="group p-4 border border-b1-light rounded-xs hover:border-b1-light hover:shadow-sm transition-all bg-white"
             >
-              <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+              <div className="font-luxury font-medium text-b1-darker group-hover:text-b1-gold transition-colors">
                 {bucket}
               </div>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-b1-dark mt-1">
                 1+ bedrooms in this range
               </p>
             </Link>

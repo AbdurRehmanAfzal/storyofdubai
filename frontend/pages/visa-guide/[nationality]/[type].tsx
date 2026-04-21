@@ -90,10 +90,10 @@ export default function VisaGuidePage({ guide }: Props) {
 
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-2xl font-luxury font-semibold text-b1-darker mb-2">
           {guide.nationality.name} {guide.visa_type.name} Dubai
         </h1>
-        <p className="text-gray-600 leading-relaxed max-w-2xl">
+        <p className="text-b1-dark leading-relaxed max-w-2xl">
           Complete step-by-step guide for {guide.nationality.name} nationals
           applying for a {guide.visa_type.name} in Dubai and the UAE.
         </p>
@@ -101,23 +101,23 @@ export default function VisaGuidePage({ guide }: Props) {
 
       {/* Key facts grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-blue-600 mb-1">Cost</div>
-          <div className="text-xl font-semibold text-blue-900">
+        <div className="bg-white border border-b1-light rounded-xs p-4">
+          <div className="text-xs font-medium text-b1-gold mb-1">Cost</div>
+          <div className="text-xl font-semibold text-b1-darker">
             AED {guide.visa_type.cost_aed.toLocaleString()}
           </div>
         </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-green-600 mb-1">Processing</div>
-          <div className="text-xl font-semibold text-green-900">
+        <div className="bg-white border border-b1-light rounded-xs p-4">
+          <div className="text-xs font-medium text-b1-gold mb-1">Processing</div>
+          <div className="text-xl font-semibold text-b1-darker">
             {guide.visa_type.processing_days} days
           </div>
         </div>
 
-        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-          <div className="text-xs font-medium text-purple-600 mb-1">Valid for</div>
-          <div className="text-xl font-semibold text-purple-900">
+        <div className="bg-white border border-b1-light rounded-xs p-4">
+          <div className="text-xs font-medium text-b1-gold mb-1">Valid for</div>
+          <div className="text-xl font-semibold text-b1-darker">
             {guide.visa_type.duration_days} days
           </div>
         </div>
@@ -126,21 +126,21 @@ export default function VisaGuidePage({ guide }: Props) {
       {/* AI-generated guide */}
       {guide.ai_guide && (
         <div className="prose prose-sm max-w-none mb-8">
-          <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white rounded-xs p-6 border border-b1-light">
+            <h2 className="text-lg font-luxury font-semibold text-b1-darker mb-4">
               How to Apply
             </h2>
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-b1-dark">
               {steps.map((step, i) => (
                 <div key={i} className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-semibold">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-xs bg-b1-gold text-white flex items-center justify-center text-xs font-semibold">
                     {i + 1}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 mb-0.5">
+                    <p className="font-medium text-b1-darker mb-0.5">
                       {step.name}
                     </p>
-                    <p className="text-sm text-gray-600">{step.text}</p>
+                    <p className="text-sm text-b1-dark">{step.text}</p>
                   </div>
                 </div>
               ))}
@@ -151,11 +151,11 @@ export default function VisaGuidePage({ guide }: Props) {
 
       {/* Specific requirements if available */}
       {guide.requirements && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+        <div className="bg-white border border-b1-light rounded-xs p-6 mb-8">
+          <h2 className="text-lg font-luxury font-semibold text-b1-darker mb-3">
             Additional Requirements
           </h2>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+          <p className="text-b1-dark leading-relaxed whitespace-pre-wrap">
             {guide.requirements}
           </p>
         </div>
@@ -165,16 +165,16 @@ export default function VisaGuidePage({ guide }: Props) {
       <EmailCapture context={`${guide.nationality.name} visa information`} />
 
       {/* Related visas */}
-      <div className="mt-8 pt-8 border-t border-gray-100">
-        <h2 className="text-sm font-medium text-gray-500 mb-3">
+      <div className="mt-8 pt-8 border-t border-b1-light">
+        <h2 className="text-sm font-medium text-b1-dark mb-3">
           Other visa types for {guide.nationality.name}
         </h2>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-b1-dark mb-4">
           Explore other visa options available for {guide.nationality.name} nationals.
         </p>
         <a
           href={`/visa-guide/${guide.nationality.slug}/`}
-          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="text-sm font-medium text-b1-gold hover:text-b1-gold-hover transition-colors"
         >
           View all visa types for {guide.nationality.name} →
         </a>

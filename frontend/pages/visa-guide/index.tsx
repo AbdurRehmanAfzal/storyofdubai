@@ -38,10 +38,10 @@ export default function VisaGuidePage({ nationalities }: Props) {
 
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-3xl font-luxury font-semibold text-b1-darker mb-2">
           UAE Visa Guides
         </h1>
-        <p className="text-gray-600 leading-relaxed max-w-2xl">
+        <p className="text-b1-dark leading-relaxed max-w-2xl">
           Complete step-by-step visa guides for UAE residency, organized by
           nationality. Find requirements, costs, and processing times.
         </p>
@@ -49,7 +49,7 @@ export default function VisaGuidePage({ nationalities }: Props) {
 
       {/* Browse by nationality */}
       <section>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
+        <h2 className="text-lg font-luxury font-medium text-b1-darker mb-4">
           Browse by Nationality
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -57,12 +57,12 @@ export default function VisaGuidePage({ nationalities }: Props) {
             <Link
               key={nationality.slug}
               href={`/visa-guide/${nationality.slug}/`}
-              className="group p-4 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+              className="group p-4 border border-b1-light rounded-xs hover:border-b1-light hover:shadow-sm transition-all bg-white"
             >
-              <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+              <div className="font-luxury font-medium text-b1-darker group-hover:text-b1-gold transition-colors">
                 {nationality.name}
               </div>
-              <div className="text-sm text-gray-500 mt-1">
+              <div className="text-sm text-b1-dark mt-1">
                 {nationality.iso_code}
               </div>
             </Link>

@@ -41,10 +41,10 @@ export default function NationalityVisasPage({ nationality, visaTypes }: Props) 
 
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-3xl font-luxury font-semibold text-b1-darker mb-2">
           Visa Types for {nationality.name} Nationals
         </h1>
-        <p className="text-gray-600 leading-relaxed max-w-2xl">
+        <p className="text-b1-dark leading-relaxed max-w-2xl">
           Complete guides for all visa types available to {nationality.name}
           nationals in Dubai and the UAE. Browse by visa type to compare costs,
           processing times, and requirements.
@@ -53,7 +53,7 @@ export default function NationalityVisasPage({ nationality, visaTypes }: Props) 
 
       {/* Visa types */}
       <section>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
+        <h2 className="text-lg font-luxury font-medium text-b1-darker mb-4">
           Available Visa Types
         </h2>
         {visaTypes.length > 0 ? (
@@ -62,28 +62,28 @@ export default function NationalityVisasPage({ nationality, visaTypes }: Props) 
               <Link
                 key={visa.id}
                 href={`/visa-guide/${nationality.slug}/${visa.visa_type.slug}/`}
-                className="group p-5 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+                className="group p-5 border border-b1-light rounded-xs hover:border-b1-light hover:shadow-sm transition-all bg-white"
               >
                 <div>
-                  <h3 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors mb-2">
+                  <h3 className="font-luxury font-medium text-b1-darker group-hover:text-b1-gold transition-colors mb-2">
                     {visa.visa_type.name}
                   </h3>
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div>
-                      <div className="text-xs text-gray-500 mb-0.5">Cost</div>
-                      <div className="font-semibold text-gray-900">
+                      <div className="text-xs text-b1-dark mb-0.5">Cost</div>
+                      <div className="font-semibold text-b1-darker">
                         AED {visa.visa_type.cost_aed?.toLocaleString() || 'N/A'}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-0.5">Processing</div>
-                      <div className="font-semibold text-gray-900">
+                      <div className="text-xs text-b1-dark mb-0.5">Processing</div>
+                      <div className="font-semibold text-b1-darker">
                         {visa.visa_type.processing_days || 'N/A'} days
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-0.5">Valid for</div>
-                      <div className="font-semibold text-gray-900">
+                      <div className="text-xs text-b1-dark mb-0.5">Valid for</div>
+                      <div className="font-semibold text-b1-darker">
                         {visa.visa_type.duration_days || 'N/A'} days
                       </div>
                     </div>
@@ -93,8 +93,8 @@ export default function NationalityVisasPage({ nationality, visaTypes }: Props) 
             ))}
           </div>
         ) : (
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center">
-            <p className="text-gray-600">
+          <div className="bg-white border border-b1-light rounded-xs p-6 text-center">
+            <p className="text-b1-dark">
               No visa guides available for {nationality.name} nationals yet.
             </p>
           </div>
