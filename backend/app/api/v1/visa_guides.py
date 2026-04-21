@@ -42,15 +42,15 @@ class VisaGuidePath(BaseModel):
     visa_type_slug: str
 
 
-@router.get("/", response_model=APIResponse[List[VisaNationalityGuideResponse]])
+@router.get("/", response_model=APIResponse[List[VisaNationalityGuideDetailResponse]])
 async def list_visa_guides(
     page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
+    per_page: int = Query(20, ge=1, le=1000),
     nationality: Optional[str] = None,
     visa_type: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
-    """List visa guides with optional filters"""
+    """List visa guides with optional filters and nested details"""
     cache_key = f"visa_guides:list:{page}:{per_page}:{nationality}:{visa_type}"
 
     # Try cache
@@ -58,16 +58,28 @@ async def list_visa_guides(
     if cached:
         return APIResponse.ok(cached["data"], cached["meta"])
 
-    # Build query
-    query = select(VisaNationalityGuide)
+    # Build query with explicit joins
+    query = select(VisaNationalityGuide, Nationality, VisaType).join(
+        Nationality, VisaNationalityGuide.nationality_id == Nationality.id
+    ).join(VisaType, VisaNationalityGuide.visa_type_id == VisaType.id)
 
     if nationality:
-        query = query.join(Nationality).where(Nationality.slug == nationality)
+        query = query.where(Nationality.slug == nationality)
     if visa_type:
-        query = query.join(VisaType).where(VisaType.slug == visa_type)
+        query = query.where(VisaType.slug == visa_type)
 
     # Get total count
-    count_result = await db.execute(select(func.count(VisaNationalityGuide.id)))
+    count_query = select(func.count(VisaNationalityGuide.id))
+    if nationality or visa_type:
+        count_query = count_query.select_from(VisaNationalityGuide).join(
+            Nationality, VisaNationalityGuide.nationality_id == Nationality.id
+        ).join(VisaType, VisaNationalityGuide.visa_type_id == VisaType.id)
+        if nationality:
+            count_query = count_query.where(Nationality.slug == nationality)
+        if visa_type:
+            count_query = count_query.where(VisaType.slug == visa_type)
+
+    count_result = await db.execute(count_query)
     total = count_result.scalar() or 0
 
     # Pagination
@@ -76,19 +88,31 @@ async def list_visa_guides(
 
     # Fetch
     result = await db.execute(query)
-    guides = result.scalars().all()
+    rows = result.all()
 
     guide_list = [
-        VisaNationalityGuideResponse(
-            id=str(g.id),
-            nationality_id=str(g.nationality_id),
-            visa_type_id=str(g.visa_type_id),
-            requirements=g.requirements,
-            ai_guide=g.ai_guide,
-            created_at=g.created_at.isoformat(),
-            updated_at=g.updated_at.isoformat(),
+        VisaNationalityGuideDetailResponse(
+            id=str(guide.id),
+            nationality={
+                "slug": nationality_obj.slug,
+                "name": nationality_obj.name,
+                "iso_code": nationality_obj.iso_code,
+            },
+            visa_type={
+                "slug": visa_type_obj.slug,
+                "name": visa_type_obj.name,
+                "category": visa_type_obj.category,
+                "duration_days": visa_type_obj.duration_days,
+                "cost_aed": visa_type_obj.cost_aed,
+                "processing_days": visa_type_obj.processing_days,
+                "ai_guide": visa_type_obj.ai_guide,
+            },
+            requirements=guide.requirements,
+            ai_guide=guide.ai_guide,
+            created_at=guide.created_at.isoformat(),
+            updated_at=guide.updated_at.isoformat(),
         )
-        for g in guides
+        for guide, nationality_obj, visa_type_obj in rows
     ]
 
     meta = PaginationMeta(

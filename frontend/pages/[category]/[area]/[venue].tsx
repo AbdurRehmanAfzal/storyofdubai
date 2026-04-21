@@ -59,6 +59,7 @@ export default function VenuePage({ venue }: Props) {
     <Layout
       title={`${venue.name} — ${venue.area.name} Dubai | Story of Dubai`}
       description={
+        venue.description ||
         venue.ai_summary ||
         `${venue.name} in ${venue.area.name}, Dubai. Rated ${venue.rating}/5 from ${venue.review_count} reviews.`
       }
@@ -84,8 +85,10 @@ export default function VenuePage({ venue }: Props) {
             <ScoreBadge score={venue.composite_score} size="lg" />
           </div>
 
-          {venue.ai_summary && (
-            <p className="text-gray-600 leading-relaxed mb-6">{venue.ai_summary}</p>
+          {(venue.description || venue.ai_summary) && (
+            <p className="text-gray-600 leading-relaxed mb-6">
+              {venue.description || venue.ai_summary}
+            </p>
           )}
 
           {/* Stats grid */}
