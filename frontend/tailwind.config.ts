@@ -8,6 +8,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // B1 Properties brand colors
+        'b1-gold': '#96651E',
+        'b1-gold-hover': '#7a5318',
+        'b1-dark': '#444444',
+        'b1-darker': '#404040',
+        'b1-light': '#D9D9D9',
+        'b1-white': '#FFFFFF',
+        // Legacy dubai colors (for compatibility)
         dubai: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -22,7 +30,11 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['system-ui', 'sans-serif'],
+        sans: ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
+        luxury: ['var(--font-luxury)', 'serif'],
+      },
+      borderRadius: {
+        xs: '2px',
       },
     },
   },

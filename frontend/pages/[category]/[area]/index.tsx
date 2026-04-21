@@ -63,15 +63,15 @@ export default function VenueAreaPage({
 
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-2xl font-luxury font-semibold text-b1-darker mb-2">
           Top {category.name} in {area.name}, Dubai
         </h1>
         {area.description && (
-          <p className="text-gray-600 leading-relaxed max-w-2xl">
+          <p className="text-b1-dark leading-relaxed max-w-2xl">
             {area.description}
           </p>
         )}
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs text-b1-light mt-3">
           {venues.length} places ranked · Last updated {lastUpdated}
         </p>
       </div>

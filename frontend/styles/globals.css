@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #96651E;
+  --color-primary-hover: #7a5318;
+  --color-dark: #444444;
+  --color-darker: #404040;
+  --color-light: #D9D9D9;
+  --color-white: #FFFFFF;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -13,11 +22,18 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: var(--font-dm-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+    sans-serif);
+  color: #444444;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-luxury, 'Georgia', serif);
+  color: #404040;
+  font-weight: 400;
 }
 
 code {
@@ -31,18 +47,30 @@ code {
   }
 
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    @apply px-4 py-2 rounded-xs font-medium transition-colors duration-200;
   }
 
   .btn-primary {
-    @apply btn bg-blue-600 text-white hover:bg-blue-700;
+    @apply btn bg-b1-gold text-white hover:bg-b1-gold-hover;
   }
 
   .btn-secondary {
-    @apply btn bg-gray-200 text-gray-900 hover:bg-gray-300;
+    @apply btn border-2 border-b1-gold text-b1-gold hover:bg-gray-50;
+  }
+
+  .btn-ghost {
+    @apply btn text-b1-gold hover:text-b1-gold-hover;
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow;
+    @apply bg-white border border-b1-light rounded-xs shadow-xs hover:shadow-sm transition-shadow;
+  }
+
+  .input {
+    @apply w-full border border-b1-light rounded-xs px-4 py-3 focus:border-b1-darker focus:ring-1 focus:ring-b1-darker outline-none transition-colors;
+  }
+
+  .input::placeholder {
+    @apply text-gray-500;
   }
 }

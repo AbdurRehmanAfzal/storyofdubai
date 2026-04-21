@@ -83,10 +83,10 @@ export default function HomePage() {
     >
       {/* Hero */}
       <div className="text-center py-12 mb-12">
-        <h1 className="text-4xl font-semibold text-gray-900 mb-4">
+        <h1 className="text-4xl font-luxury font-semibold text-b1-darker mb-4">
           The Story of Dubai
         </h1>
-        <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg text-b1-dark max-w-2xl mx-auto leading-relaxed">
           Data-ranked guides to every restaurant, hotel, property, and experience
           in Dubai. Updated daily. No ads. No bias.
         </p>
@@ -94,7 +94,7 @@ export default function HomePage() {
 
       {/* Category grid */}
       <section className="mb-12">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-medium text-b1-light uppercase tracking-wider mb-4">
           Explore by category
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -102,13 +102,13 @@ export default function HomePage() {
             <Link
               key={cat.slug}
               href={`/${cat.slug}/`}
-              className="group p-5 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all bg-white"
+              className="group p-5 border border-b1-light rounded-xs hover:border-b1-light hover:shadow-sm transition-all bg-white"
             >
               <div className="text-2xl mb-2">{cat.icon}</div>
-              <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+              <div className="font-luxury font-medium text-b1-darker group-hover:text-b1-gold transition-colors">
                 {cat.name}
               </div>
-              <div className="text-sm text-gray-400 mt-1">{cat.desc}</div>
+              <div className="text-sm text-b1-dark mt-1">{cat.desc}</div>
             </Link>
           ))}
         </div>
@@ -116,7 +116,7 @@ export default function HomePage() {
 
       {/* Top areas */}
       <section className="mb-12">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-medium text-b1-light uppercase tracking-wider mb-4">
           Browse by area
         </h2>
         <div className="flex flex-wrap gap-2">
@@ -124,7 +124,7 @@ export default function HomePage() {
             <Link
               key={area}
               href={`/restaurants/${area}/`}
-              className="text-sm text-gray-600 hover:text-blue-600 border border-gray-200 hover:border-blue-200 rounded-full px-4 py-1.5 transition-colors"
+              className="text-sm text-b1-dark hover:text-b1-gold border border-b1-light hover:border-b1-gold rounded-full px-4 py-1.5 transition-colors"
             >
               {area
                 .split('-')
@@ -136,17 +136,17 @@ export default function HomePage() {
       </section>
 
       {/* Data stats */}
-      <section className="grid grid-cols-3 gap-4 py-8 border-t border-gray-100">
+      <section className="grid grid-cols-3 gap-4 py-8 border-t border-b1-light">
         {[
           { val: '10,000+', label: 'Pages indexed' },
           { val: 'Daily', label: 'Data updates' },
           { val: '40+', label: 'Dubai areas covered' },
         ].map((stat) => (
           <div key={stat.label} className="text-center">
-            <div className="text-2xl font-semibold text-gray-900">
+            <div className="text-2xl font-semibold text-b1-darker">
               {stat.val}
             </div>
-            <div className="text-sm text-gray-400 mt-1">{stat.label}</div>
+            <div className="text-sm text-b1-light mt-1">{stat.label}</div>
           </div>
         ))}
       </section>

@@ -16,9 +16,9 @@ export default function VenueCard({ venue, rank }: VenueCardProps) {
   const href = `/${venue.category.slug}/${venue.area.slug}/${venue.slug}/`
 
   return (
-    <article className="flex items-start gap-4 p-4 border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all bg-white">
+    <article className="flex items-start gap-4 p-4 border border-b1-light rounded-xs hover:border-b1-light hover:shadow-sm transition-all bg-white">
       {/* Rank */}
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center text-sm font-medium text-gray-500">
+      <div className="flex-shrink-0 w-8 h-8 rounded-xs bg-b1-light border border-b1-light flex items-center justify-center text-sm font-medium text-b1-dark">
         {rank}
       </div>
 
@@ -28,11 +28,11 @@ export default function VenueCard({ venue, rank }: VenueCardProps) {
           <div>
             <Link
               href={href}
-              className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+              className="font-luxury font-medium text-b1-darker hover:text-b1-gold transition-colors"
             >
               {venue.name}
             </Link>
-            <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 flex-wrap">
+            <div className="flex items-center gap-2 mt-1 text-sm text-b1-dark flex-wrap">
               {venue.rating && (
                 <span className="flex items-center gap-1">
                   <span className="text-amber-400">★</span>
@@ -43,7 +43,7 @@ export default function VenueCard({ venue, rank }: VenueCardProps) {
                 <span>({venue.review_count.toLocaleString()} reviews)</span>
               )}
               {venue.price_tier && (
-                <span className="text-gray-400">{priceTierLabel(venue.price_tier)}</span>
+                <span className="text-b1-light">{priceTierLabel(venue.price_tier)}</span>
               )}
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function VenueCard({ venue, rank }: VenueCardProps) {
             href={venue.affiliate_url}
             target="_blank"
             rel="noopener noreferrer sponsored"
-            className="mt-2 inline-block text-xs text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg px-3 py-1 hover:bg-blue-50 transition-colors"
+            className="mt-2 inline-block text-xs text-b1-gold hover:text-b1-gold-hover border border-b1-light rounded-xs px-3 py-1 hover:bg-gray-50 transition-colors"
           >
             Book / Reserve →
           </a>

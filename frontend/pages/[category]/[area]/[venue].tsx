@@ -81,12 +81,12 @@ export default function VenuePage({ venue }: Props) {
         {/* Main content */}
         <div className="lg:col-span-2">
           <div className="flex items-start justify-between gap-4 mb-4">
-            <h1 className="text-2xl font-semibold text-gray-900">{venue.name}</h1>
+            <h1 className="text-2xl font-luxury font-semibold text-b1-darker">{venue.name}</h1>
             <ScoreBadge score={venue.composite_score} size="lg" />
           </div>
 
           {(venue.description || venue.ai_summary) && (
-            <p className="text-gray-600 leading-relaxed mb-6">
+            <p className="text-b1-dark leading-relaxed mb-6">
               {venue.description || venue.ai_summary}
             </p>
           )}
@@ -94,27 +94,27 @@ export default function VenuePage({ venue }: Props) {
           {/* Stats grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
             {venue.rating && (
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
+              <div className="bg-white border border-b1-light rounded-xs p-3 text-center">
                 <div className="text-xl font-semibold text-amber-500">
                   {venue.rating.toFixed(1)}
                 </div>
-                <div className="text-xs text-gray-500 mt-0.5">Google rating</div>
+                <div className="text-xs text-b1-dark mt-0.5">Google rating</div>
               </div>
             )}
             {venue.review_count > 0 && (
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <div className="text-xl font-semibold text-gray-900">
+              <div className="bg-white border border-b1-light rounded-xs p-3 text-center">
+                <div className="text-xl font-semibold text-b1-darker">
                   {venue.review_count.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-500 mt-0.5">Reviews</div>
+                <div className="text-xs text-b1-dark mt-0.5">Reviews</div>
               </div>
             )}
             {venue.price_tier && (
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <div className="text-xl font-semibold text-gray-900">
+              <div className="bg-white border border-b1-light rounded-xs p-3 text-center">
+                <div className="text-xl font-semibold text-b1-darker">
                   {'$'.repeat(venue.price_tier)}
                 </div>
-                <div className="text-xs text-gray-500 mt-0.5">Price range</div>
+                <div className="text-xs text-b1-dark mt-0.5">Price range</div>
               </div>
             )}
           </div>
@@ -124,7 +124,7 @@ export default function VenuePage({ venue }: Props) {
               href={venue.affiliate_url}
               target="_blank"
               rel="noopener noreferrer sponsored"
-              className="inline-block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors mb-6"
+              className="inline-block w-full text-center bg-b1-gold hover:bg-b1-gold-hover text-white font-medium py-3 rounded-xs transition-colors mb-6"
             >
               Book / Reserve at {venue.name} →
             </a>
@@ -134,41 +134,41 @@ export default function VenuePage({ venue }: Props) {
         {/* Sidebar */}
         <div className="space-y-4">
           {venue.address && (
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-xs font-medium text-gray-500 mb-1">Address</p>
-              <p className="text-sm text-gray-900">{venue.address}</p>
+            <div className="bg-white border border-b1-light rounded-xs p-4">
+              <p className="text-xs font-medium text-b1-dark mb-1">Address</p>
+              <p className="text-sm text-b1-darker">{venue.address}</p>
             </div>
           )}
           {venue.phone && (
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-xs font-medium text-gray-500 mb-1">Phone</p>
+            <div className="bg-white border border-b1-light rounded-xs p-4">
+              <p className="text-xs font-medium text-b1-dark mb-1">Phone</p>
               <a
                 href={`tel:${venue.phone}`}
-                className="text-sm text-blue-600"
+                className="text-sm text-b1-gold hover:text-b1-gold-hover transition-colors"
               >
                 {venue.phone}
               </a>
             </div>
           )}
           {venue.website && (
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-xs font-medium text-gray-500 mb-1">Website</p>
+            <div className="bg-white border border-b1-light rounded-xs p-4">
+              <p className="text-xs font-medium text-b1-dark mb-1">Website</p>
               <a
                 href={venue.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-blue-600 truncate block"
+                className="text-sm text-b1-gold hover:text-b1-gold-hover truncate block transition-colors"
               >
                 Visit website
               </a>
             </div>
           )}
 
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs font-medium text-gray-500 mb-2">Area</p>
+          <div className="bg-white border border-b1-light rounded-xs p-4">
+            <p className="text-xs font-medium text-b1-dark mb-2">Area</p>
             <Link
               href={`/${venue.category.slug}/${venue.area.slug}/`}
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="text-sm text-b1-gold hover:text-b1-gold-hover transition-colors"
             >
               More {venue.category.name} in {venue.area.name} →
             </Link>
