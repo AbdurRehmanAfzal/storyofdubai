@@ -42,9 +42,10 @@ class VisaNationalityGuide(Base, UUIDMixin, TimestampMixin):
 
     nationality_id: Mapped[str] = mapped_column(String(36), ForeignKey("nationalities.id", ondelete="CASCADE"), nullable=False)
     visa_type_id: Mapped[str] = mapped_column(String(36), ForeignKey("visa_types.id", ondelete="CASCADE"), nullable=False)
-    specific_requirements: Mapped[str] = mapped_column(Text, nullable=True)
+    slug: Mapped[str] = mapped_column(String(255), nullable=True, unique=True, index=True)
+    requirements: Mapped[str] = mapped_column(Text, nullable=True)
     ai_guide: Mapped[str] = mapped_column(Text, nullable=True)
-    last_updated: Mapped[str] = mapped_column(String(30), nullable=True)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=False, index=True)
 
     nationality = relationship("Nationality", back_populates="visa_guides")
     visa_type = relationship("VisaType", back_populates="visa_guides")
